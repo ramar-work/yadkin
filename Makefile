@@ -1,5 +1,5 @@
-# garbanzo - Makefile for this robot lib 
-NAME = garbanzo
+# screentest - Makefile for this robot lib 
+NAME = screentest
 VERSION = 0.01
 LDDIRS = -Llib
 PREFIX = /usr/local
@@ -14,16 +14,16 @@ OBJ = ${SRC:.c=.o}
 LIBS = lib/libSDL2.a lib/libSDL2_ttf.a lib/libfreetype.a
 LPREFIX = $(shell pwd)
 
+# android - Build an android version
+android:
+	cd platforms/android-project/ && ./gradlew build
+
 
 # build - Build the basic version of this tool
 build: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) src/main.c \
 		$(LIBS) $(LDDIRS) $(LDFLAGS) -o bin/$(NAME)
 
-
-# android - Build an android version
-android:
-	cd platforms/android-project/ && ./gradlew build
 
 
 # android-install - Install a version for Android
@@ -43,31 +43,11 @@ debug: build
 	@printf '' >/dev/null
 
 
-# href - Build baht's http handling code 
-href: vendor/single.o
-	$(CC) $(CFLAGS) -DIS_TEST vendor/single.o web.c -L$(LDDIRS) -lgnutls -lcurl -o ref && ./ref
-
-
-# filter - Build and test baht filters (under construction, do not use)
-filter:
-	printf 'This target is currently under construction.  Do not use it.' > /dev/stderr
-
-
 # clean - Clean up everything
 clean:
-	-rm -f *.o vendor/*.o $(NAME) ref
+	-rm $(NAME)
+	-find -type f -name "*.o" -print0 | xargs -0 rm -f 
 	-find ./platforms/android-project/app/build/ -type f -name "*.so" | xargs rm
-
-
-# install - Install the tool somewhere
-install:
-	test -d $(PREFIX)/bin/ || mkdir -p $(PREFIX)/bin/
-	cp -v bin/$(NAME) $(PREFIX)/bin/	
-
-
-# uninstall - Install the tool somewhere
-uninstall:
-	rm $(PREFIX)/bin/$(NAME)
 
 
 # pkg - Create a package 
@@ -86,3 +66,6 @@ local-build:
 		./configure --prefix=$(LPREFIX) --with-zlib=no --with-png=no && make && make install
 
 
+# deps - Grab any dependencies needed to build on Linux
+deps:
+	wget https://www.libsdl.org/release/SDL2-2.0.14.tar.gz

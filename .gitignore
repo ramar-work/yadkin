@@ -1,0 +1,18 @@
+# Directories
+bin/*
+include/
+lib/
+share/
+vendor/
+platforms/*
+
+# Specifically include descriptions
+!bin/README.md
+!vendor/README.md
+
+# Binary files
+*.o
+*.so
+
+# Personal stuff
+TODO

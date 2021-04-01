@@ -1,6 +1,4 @@
 //main.c
-//prototype of mobox.c
-#if 0
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
@@ -8,6 +6,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#if 0
 #include <errno.h>
 #endif
 
@@ -39,8 +38,6 @@ int help() {
 
 //int main ( int argc, char *argv[] ) {
 int main ( int argc, char *argv[] ) {
-	char *filename = NULL;
-	char *filename2 = NULL;
 	SDL_Window *w = NULL;
 	SDL_Surface *ws = NULL;
 	//const char fname[] = "data/Anthony_Naples_-_Busy_Signal.wav";
