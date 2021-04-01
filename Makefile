@@ -13,23 +13,31 @@ SRC =
 OBJ = ${SRC:.c=.o}
 LIBS = lib/libSDL2.a lib/libSDL2_ttf.a lib/libfreetype.a
 LPREFIX = $(shell pwd)
+PKGSDL = SDL2-2.0.14
+COMPANY = tubularmodularinc
+ORG = org.$(COMPANY).$(NAME)
+ANDDIR = platforms/org.tubularmodular.example
+ANDDIR = platforms/android-project
+ANDDIR = platforms/android
+#ANDDIR = platforms/org.tubularmodularinc.screentest
 
 # android - Build an android version
 android:
-	cd platforms/android-project/ && ./gradlew build
-
+	cd $(ANDDIR) && ./gradlew build
 
 # build - Build the basic version of this tool
 build: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) src/main.c \
 		$(LIBS) $(LDDIRS) $(LDFLAGS) -o bin/$(NAME)
 
-
-
 # android-install - Install a version for Android
-android-install:
-	cd platforms/android-project/ && ./gradlew installDebug 
+ainstall:
+	cd $(ANDDIR) && ./gradlew installDebug 
 
+# publish - Android
+publish:
+	cd $(ANDDIR) && find -type f -print0 | xargs -0 sed -i 's/org.libsdl.app/$(ORG)/g;'
+	cd $(ANDDIR) && sed -i 's;Game;$(NAME);g' app/src/main/res/values/strings.xml
 
 # explain - List all the targets and what they do
 explain:
@@ -43,11 +51,10 @@ debug: build
 	@printf '' >/dev/null
 
 
-# clean - Clean up everything
+# clean - Remove executable, objects at top-level and any Android/iOS builds
 clean:
-	-rm $(NAME)
-	-find -type f -name "*.o" -print0 | xargs -0 rm -f 
-	-find ./platforms/android-project/app/build/ -type f -name "*.so" | xargs rm
+	-find . -maxdepth 1 -type f -name "*.o" -o -name "$(NAME)" -print0 | xargs -0 rm -f
+	-cd $(ANDDIR) && ndk-build NDK_PROJECT_PATH=app/ clean 
 
 
 # pkg - Create a package 
@@ -66,6 +73,17 @@ local-build:
 		./configure --prefix=$(LPREFIX) --with-zlib=no --with-png=no && make && make install
 
 
+# config - Generate a config file holding all of the environment info
+config:
+	cp template.env app.env
+
 # deps - Grab any dependencies needed to build on Linux
 deps:
-	wget https://www.libsdl.org/release/SDL2-2.0.14.tar.gz
+	cd vendor/ && \
+		wget https://www.libsdl.org/release/$(PKGSDL).tar.gz && \
+		tar xf $(PKGSDL).tar.gz && \
+		cp -r $(PKGSDL) ../platforms/android-project/app/jni/SDL2
+			
+
+
+

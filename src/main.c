@@ -1,19 +1,5 @@
-//main.c
-#include <stdio.h>
-#include <signal.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#if 0
-#include <errno.h>
-#endif
-
-#include <SDL2/SDL.h>
-#if 0
-#include <SDL2/SDL_ttf.h>
-#endif
+#include <SDL.h>
+//#include <SDL/SDL_ttf.h>
 
 #define PROG "screentest"
 
@@ -30,35 +16,9 @@ void fill_surface( SDL_Surface *sf, uint32_t color ) {
 }
 
 
-int help() {
-	fprintf( stderr, PROG " help: [ [ -f, -f1, -f2 <arg> ], -h ]\n" );
-	return 0;
-}
-
-
-//int main ( int argc, char *argv[] ) {
 int main ( int argc, char *argv[] ) {
 	SDL_Window *w = NULL;
 	SDL_Surface *ws = NULL;
-	//const char fname[] = "data/Anthony_Naples_-_Busy_Signal.wav";
-
-	#if 0
-	//help
-	if ( argc < 2 ) {
-		return help();
-	}
-
-	//Menu stuff
-	while ( *argv ) {
-		if ( !strcmp( *argv, "-f1" ) || !strcmp( *argv, "--file1" ) ) {
-			filename = *( ++argv );
-		}
-		if ( !strcmp( *argv, "-f2" ) || !strcmp( *argv, "--file2" ) ) {
-			filename2 = *( ++argv );
-		}
-		argv++;
-	}
-	#endif
 
 	//Play WAV data with this 
 	if ( SDL_Init( SDL_INIT_VIDEO ) == -1 ) {
@@ -116,7 +76,7 @@ int main ( int argc, char *argv[] ) {
 #endif
 
 	//Initialize controls and etc by loading stuff
-	for ( int go = 1; go ; ) {
+	for ( int clri = 0, go = 1; go; ) {
 		//SDL_TouchFingerEvent tf = {0};
 		SDL_Delay( 100 ); // Don't just run with all your heart and soul...
 		for ( SDL_Event e; SDL_PollEvent( &e ); ) {
@@ -127,18 +87,21 @@ int main ( int argc, char *argv[] ) {
 			else if ( e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_FINGERDOWN ) {
 				//Finally, let's track the clicks (and eventually touches)
 				char *type, buf[512] = {0};
-				int x=0, y=0;
+				int x = 0, y = 0, clrsl;
+				int clr[3] = { 0xff0000, 0x0000ff, 0xff00ff };	
 
 				if ( e.type == SDL_MOUSEBUTTONDOWN ) 
 					type = "mouse", x = e.button.x, y = e.button.y;
 				else {
 					type = "finger", x = e.tfinger.x, y = e.tfinger.y;
 				}
-
+		
+			#if 0
 				snprintf( buf, sizeof( buf ), 
 					"%s event received at points (%d, %d)\n", type, x, y );	
-
-				fill_surface( ws, 0x00ff00 );
+			#endif
+				clrsl = clr[ ( clri > 2 ) ? clri = 0 : clri ];
+				fill_surface( ws, clrsl );
 
 			#if 0				
 				if ( !( ts = TTF_RenderText_Solid( font, buf, fgcolor ) ) ) {
@@ -150,6 +113,8 @@ int main ( int argc, char *argv[] ) {
 				SDL_UpdateWindowSurface( w );
 				SDL_FreeSurface( ts );
 			#endif
+				SDL_UpdateWindowSurface( w );
+				clri++;
 			}
 		}
 	}
