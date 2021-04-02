@@ -5,7 +5,6 @@ include/
 lib/
 share/
 vendor/
-platforms/
 workspace/
 
 # Specifically include descriptions
@@ -18,3 +17,7 @@ workspace/
 
 # Personal stuff
 TODO
+
+# Block build files for Android
+.gradle
+.externalNativeBuild
