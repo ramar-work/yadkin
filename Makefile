@@ -16,9 +16,7 @@ LPREFIX = $(shell pwd)
 PKGSDL = SDL2-2.0.14
 COMPANY = tubularmodularinc
 ORG = org.$(COMPANY).$(NAME)
-ANDDIR = platforms/org.tubularmodular.example
-ANDDIR = platforms/android-project
-ANDDIR = platforms/android.including-ttf
+ANDDIR = platforms/android
 #ANDDIR = platforms/org.tubularmodularinc.screentest
 
 # build - Build a C application capable of running on Linux, etc
@@ -80,7 +78,7 @@ pkg:
 
 # docs - Create index.html
 docs:
-	markdown -S README.md > index.html
+	markdown -S README.md > docs/index.html
 
 
 # Build SDL2 locally
@@ -100,6 +98,6 @@ deps:
 		tar xf $(PKGSDL).tar.gz && \
 		cp -r $(PKGSDL) ../platforms/android-project/app/jni/SDL2
 			
-.PHONY: build
+.PHONY: build docs
 
 
