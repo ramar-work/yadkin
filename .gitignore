@@ -1,5 +1,6 @@
 # Directories
 bin/*
+build/
 include/
 lib/
 share/
