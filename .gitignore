@@ -1,0 +1,23 @@
+# Directories
+bin/*
+build/
+include/
+lib/
+share/
+vendor/
+workspace/
+
+# Specifically include descriptions
+!bin/README.md
+!vendor/README.md
+
+# Binary files
+*.o
+*.so
+
+# Personal stuff
+TODO
+
+# Block build files for Android
+.gradle
+.externalNativeBuild
