@@ -38,6 +38,7 @@ build: $(OBJ)
 
 # initial - Downloads external dependencies instead of shipping in repo
 initial:
+	-mkdir vendor
 	for n in $(HTTPDEPS); do curl -o $$n $$n.tar.gz; done
 
 # android-deps - Build Android dependencies from a working version of the command line tools
