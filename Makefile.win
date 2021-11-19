@@ -21,22 +21,32 @@ TARGETS = "build-tools;31.0.0" "cmdline-tools;latest" "platform-tools" "ndk-bund
 JDKBIN = OpenJDK8U-jdk_x64_linux_hotspot_8u312b07
 JDKVER = jdk8u312-b07
 #ANDDIR = platforms/org.tubularmodularinc.screentest
+HTTPSRC = http://yadkin.ironhead.io
+HTTPDEPS = \
+	OpenJDK8U-jdk_x64_windows_hotspot_8u312b07 \
+	commandlinetools-win \
+	SDL2-2.0.14 \
+	SDL2_ttf-2.0.15 \
+	freetype-2.10.4
 
 # build - Build a C application capable of running on Linux, etc
 build: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) src/main.c $(LIBS) $(LDDIRS) $(LDFLAGS) -o bin/$(NAME) && \
 		bin/$(NAME)
 
+# initial - Downloads external dependencies instead of shipping in repo
+initial:
+	for n in $(HTTPDEPS); do curl -o $$n $(HTTPSRC)/static/$$n.tar.gz; done
 
 # android-deps - Build Android dependencies from a working version of the command line tools
 # (Note we temporarily set environment variables)
 android-deps:
 	-mkdir -p ./share/sdk/cmdline-tools/latest
 	-tar -xzf vendor/commandlinetools-linux.tar.gz -C share/sdk/cmdline-tools/
-	-tar -xzf vendor/jdk-11.0.13-linux.tar.gz -C share/
-	export JAVA_HOME=./share/jdk1.8.0_311 && \
+	-tar -xzf vendor/$(JDKBIN).tar.gz -C share/
+	export JAVA_HOME=./share/$(JDKVER) && \
 	export ANDROID_SDK_ROOT=./share/sdk && \
-		./share/sdk/cmdline-tools/latest/bin/sdkmanager $(TARGETS)
+		./share/sdk/cmdline-tools/latest/bin/sdkmanager --list $(TARGETS)
 
 
 # sdl-deps - Just unpack SDL and friends

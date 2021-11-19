@@ -7,6 +7,7 @@ LDFLAGS = -lm -ldl -lpthread -lharfbuzz -lbz2 -lbrotlicommon -lbrotlidec -lbrotl
 IFLAGS = -Ivendor -Iinclude -Iinclude/SDL2 -Iinclude/SDL_ttf
 DFLAGS = -DDEBUG
 CC = clang
+HTTPSRC = http://yadkin.ironhead.io
 #CC = gcc
 CFLAGS = -Wall -Werror -Wno-unused $(IFLAGS)
 SRC =
@@ -21,12 +22,22 @@ JDKBIN = OpenJDK8U-jdk_x64_linux_hotspot_8u312b07
 JDKVER = jdk8u312-b07
 #TARGETS = "build-tools;31.0.0" "cmdline-tools;latest" "platform-tools" "ndk-bundle" "system-images;android-31;default;x86_64"
 #ANDDIR = platforms/org.tubularmodularinc.screentest
+HTTPDEPS = \
+	OpenJDK8U-jdk_x64_linux_hotspot_8u312b07 \
+	commandlinetools-linux \
+	SDL2-2.0.14 \
+	SDL2_ttf-2.0.15 \
+	freetype-2.10.4
 
 # build - Build a C application capable of running on Linux, etc
 build: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) src/main.c $(LIBS) $(LDDIRS) $(LDFLAGS) -o bin/$(NAME) && \
 		bin/$(NAME)
 
+
+# initial - Downloads external dependencies instead of shipping in repo
+initial:
+	for n in $(HTTPDEPS); do curl -o $$n $$n.tar.gz; done
 
 # android-deps - Build Android dependencies from a working version of the command line tools
 # (Note we temporarily set environment variables)
