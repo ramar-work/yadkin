@@ -18,6 +18,7 @@ PKGSDL = SDL2-2.0.14
 COMPANY = ironhead 
 ORG = org.$(COMPANY).$(NAME)
 ANDDIR = platforms/android
+CLITOOLS = commandlinetools-linux.tar.gz 
 JDKBIN = OpenJDK8U-jdk_x64_linux_hotspot_8u312b07
 JDKVER = jdk8u312-b07
 #TARGETS = "build-tools;31.0.0" "cmdline-tools;latest" "platform-tools" "ndk-bundle" "system-images;android-31;default;x86_64"
@@ -43,7 +44,7 @@ initial:
 # (Note we temporarily set environment variables)
 android-deps:
 	-mkdir -p ./share/sdk/cmdline-tools/latest
-	-tar -xzf vendor/commandlinetools-linux.tar.gz -C share/sdk/cmdline-tools/
+	-tar -xzf vendor/$(CLITOOLS) -C share/sdk/cmdline-tools/
 	-tar -xzf vendor/$(JDKBIN).tar.gz -C share/
 	export JAVA_HOME=./share/$(JDKVER) && \
 	export ANDROID_SDK_ROOT=./share/sdk && \
