@@ -7,6 +7,7 @@ LDFLAGS = -lm -ldl -lpthread -lharfbuzz -lbz2 -lbrotlicommon -lbrotlidec -lbrotl
 IFLAGS = -Ivendor -Iinclude -Iinclude/SDL2 -Iinclude/SDL_ttf
 DFLAGS = -DDEBUG
 CC = clang
+HTTPSRC = http://yadkin.ironhead.io
 #CC = gcc
 CFLAGS = -Wall -Werror -Wno-unused $(IFLAGS)
 SRC =
@@ -18,14 +19,14 @@ COMPANY = ironhead
 ORG = org.$(COMPANY).$(NAME)
 ANDDIR = platforms/android
 TARGETS = "build-tools;31.0.0" "cmdline-tools;latest" "platform-tools" "ndk-bundle" "system-images;android-31;default;x86_64"
-CLITOOLS = commandlinetools-win.tar.gz 
-JDKBIN = OpenJDK8U-jdk_x64_windows_hotspot_8u312b07
+CLITOOLS = commandlinetools-mac.tar.gz 
+JDKBIN = OpenJDK8U-jdk_x64_mac_hotspot_8u312b07
 JDKVER = jdk8u312-b07
 #ANDDIR = platforms/org.tubularmodularinc.screentest
 HTTPSRC = http://yadkin.ironhead.io
 HTTPDEPS = \
-	OpenJDK8U-jdk_x64_windows_hotspot_8u312b07 \
-	commandlinetools-win \
+	OpenJDK8U-jdk_x64_mac_hotspot_8u312b07 \
+	commandlinetools-mac \
 	SDL2-2.0.14 \
 	SDL2_ttf-2.0.15 \
 	freetype-2.10.4
@@ -35,10 +36,11 @@ build: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) src/main.c $(LIBS) $(LDDIRS) $(LDFLAGS) -o bin/$(NAME) && \
 		bin/$(NAME)
 
+
 # initial - Downloads external dependencies instead of shipping in repo
 initial:
-	-mkdir vendor/
-	for n in $(HTTPDEPS); do curl -o $$n $(HTTPSRC)/static/$$n.tar.gz; done
+	-mkdir vendor
+	for n in $(HTTPDEPS); do curl -o $$n $(HTTPSRC)/$$n.tar.gz; done
 
 # android-deps - Build Android dependencies from a working version of the command line tools
 # (Note we temporarily set environment variables)
@@ -48,7 +50,7 @@ android-deps:
 	-tar -xzf vendor/$(JDKBIN).tar.gz -C share/
 	export JAVA_HOME=./share/$(JDKVER) && \
 	export ANDROID_SDK_ROOT=./share/sdk && \
-		./share/sdk/cmdline-tools/latest/bin/sdkmanager.bat --list $(TARGETS)
+		./share/sdk/cmdline-tools/latest/bin/sdkmanager --list $(TARGETS)
 
 
 # sdl-deps - Just unpack SDL and friends
@@ -97,8 +99,15 @@ debug: build
 	@printf '' >/dev/null
 
 
-# clean-deps - Remove dependencies
+# clean - Remove executable, objects at top-level and any Android/iOS builds
 clean:
+	-find . -maxdepth 1 -type f -name "*.o" -o -name "$(NAME)" -print0 | \
+			xargs -0 rm -f
+	-cd $(ANDDIR) && ./gradlew clean 
+
+
+# clean-deps - Remove dependencies
+clean-deps:
 	rm -rf share/
 
 aa:
