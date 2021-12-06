@@ -4,7 +4,6 @@ build/
 include/
 lib/
 share/
-vendor/
 workspace/
 
 # Specifically include descriptions
