@@ -19,7 +19,7 @@ JDKVER = jdk8u312-b07
 main:
 	test -d vendor || git clone $(REPOSRC)/yadkind.git -b $(BRANCH) --single-branch vendor
 	-mkdir -p ./share/sdk/cmdline-tools/latest
-	-tar -xzf vendor/$(CLITOOLS) -C share/sdk/cmdline-tools/latest/
+	-tar -xzf vendor/$(CLITOOLS) -C share/sdk/
 	-tar -xzf vendor/$(JDKBIN).tar.gz -C share/
 	export JAVA_HOME=./share/$(JDKVER)/Contents/Home && \
 	export ANDROID_SDK_ROOT=./share/sdk && \
