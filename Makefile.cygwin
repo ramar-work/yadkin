@@ -38,7 +38,7 @@ install:
 	ln -s $(PREFIX)/share/$(NAME)/$(JDKVER)/java $(PREFIX)/bin/
 	ln -s $(PREFIX)/share/$(NAME)/$(JDKVER)/keytool $(PREFIX)/bin/
 	ln -s $(PREFIX)/share/$(NAME)/sdk/platform-tools/adb $(PREFIX)/bin/
-	ln -s $(PREFIX)/share/$(NAME)/sdk/emulator/emulator $(PREFIX)/bin/
+	ln -s $(PREFIX)/share/$(NAME)/sdk/tools/emulator $(PREFIX)/bin/
 	cp environment/cygwin.env /etc/profile.d/$(NAME).sh
 	echo "$(NAME) installed successfully, please restart your terminal or system for PATH changes to take effect."
 
@@ -57,11 +57,13 @@ image:
 	cd $(PREFIX)/share/yadkin/sdk/cmdline-tools/latest/bin/ && \
 		cmd /c avdmanager.bat --verbose create avd \
 			--force -d 18 -n yadkin_pixel_3 -k "system-images;android-31;default;x86_64" -p `cygpath -w $(PREFIX)/share/images`
-	
+
+
 image-list:
 	cd $(PREFIX)/share/yadkin/sdk/cmdline-tools/latest/bin/ && \
 		cmd /c avdmanager.bat list
-	
+
+
 image-help:
 	cd $(PREFIX)/share/yadkin/sdk/cmdline-tools/latest/bin/ && \
 		cmd /c avdmanager.bat create avd --help 
