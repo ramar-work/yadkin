@@ -39,7 +39,9 @@ install:
 	ln -s $(PREFIX)/share/$(NAME)/sdk/platform-tools/adb $(PREFIX)/bin/
 	ln -s $(PREFIX)/share/$(NAME)/sdk/emulator/emulator $(PREFIX)/bin/
 	test -d /etc/zsh/ || mkdir -p /etc/zsh/
-	cp environment/mac.env /etc/zsh/$(NAME).zsh
+	test -d /etc/profile.d/ || mkdir -p /etc/profile.d/
+	cp environment/unix.env /etc/profile.d/$(NAME).sh
+	cp environment/unix.env /etc/zsh/$(NAME).zsh
 	echo "$(NAME) installed successfully, please restart your terminal or system for PATH changes to take effect."
 
 

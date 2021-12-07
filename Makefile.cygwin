@@ -39,6 +39,7 @@ install:
 	ln -s $(PREFIX)/share/$(NAME)/$(JDKVER)/keytool $(PREFIX)/bin/
 	ln -s $(PREFIX)/share/$(NAME)/sdk/platform-tools/adb $(PREFIX)/bin/
 	ln -s $(PREFIX)/share/$(NAME)/sdk/tools/emulator $(PREFIX)/bin/
+	test -d /etc/profile.d/ || mkdir -p /etc/profile.d/
 	cp environment/cygwin.env /etc/profile.d/$(NAME).sh
 	echo "$(NAME) installed successfully, please restart your terminal or system for PATH changes to take effect."
 
