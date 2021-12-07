@@ -1,7 +1,7 @@
 # yadkin - Makefile for packaging Android
 NAME = yadkin
 VERSION = 0.04
-PREFIX = /opt
+PREFIX = /opt/$(NAME)
 BRANCH = mac
 SRCURL = yadkin.ironhead.io
 HTTPSRC = http://$(SRCURL)
@@ -32,7 +32,7 @@ install:
 	mkdir -p $(PREFIX)/etc/$(NAME)/
 	mkdir -p $(PREFIX)/include/$(NAME)/
 	mkdir -p $(PREFIX)/share/
-	mv share $(PREFIX)/share/$(NAME)
+	mv share $(PREFIX)/share/$(NAME)/
 	mkdir -p $(PREFIX)/share/$(NAME)/images/
 	ln -s $(PREFIX)/share/$(NAME)/$(JDKVER)/java $(PREFIX)/bin/
 	ln -s $(PREFIX)/share/$(NAME)/$(JDKVER)/keytool $(PREFIX)/bin/
