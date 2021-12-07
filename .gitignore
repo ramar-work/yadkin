@@ -20,3 +20,7 @@ TODO
 # Block build files for Android
 .gradle
 .externalNativeBuild
+
+# Source code listing 
+src.vim
+

@@ -1,7 +1,7 @@
 # yadkin - Makefile for packaging Android
 NAME = yadkin
 VERSION = 0.04
-PREFIX = /opt
+PREFIX = /opt/$(NAME)
 BRANCH = linux
 SRCURL = yadkin.ironhead.io
 HTTPSRC = http://$(SRCURL)
