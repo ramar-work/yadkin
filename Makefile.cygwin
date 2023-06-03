@@ -9,13 +9,18 @@ REPOSRC = git://$(SRCURL)
 PKGSDL = SDL2-2.0.14
 COMPANY = ironhead 
 ORG = org.$(COMPANY).$(NAME)
-TARGETS = "build-tools;31.0.0" "cmdline-tools;latest" "platform-tools" "ndk-bundle" "system-images;android-31;default;x86_64"
+TARGETS = \
+	"build-tools;31.0.0" \
+	"cmdline-tools;latest" \
+	"platform-tools" \
+	"ndk-bundle" \
+	"system-images;android-31;default;x86_64"
 CLITOOLS = commandlinetools-$(BRANCH).tar.gz 
 JDKBIN = OpenJDK8U-jdk_x64_$(BRANCH)_hotspot_8u312b07
 JDKVER = jdk8u312-b07
 
 
-# main - The primary target should just unpack deps (if needed), and download everything 
+# main - The primary target should just unpack deps (if needed) & download everything 
 main:
 	test -d vendor || git clone $(REPOSRC)/yadkind.git -b $(BRANCH) --single-branch vendor
 	-mkdir -p ./share/sdk/cmdline-tools/latest
@@ -26,8 +31,7 @@ main:
 	cd share/sdk/cmdline-tools/latest/bin/ && \
 		cmd /c sdkmanager.bat --verbose $(TARGETS)
 
-
-# install - Install
+# install - Install tooling
 install:
 	mkdir -p $(PREFIX)/bin/
 	mkdir -p $(PREFIX)/etc/$(NAME)/
@@ -45,56 +49,64 @@ install:
 
 
 # android-device - Build a new Android device
-android-device:
-	export JAVA_HOME=./share/$(JDKVER) && \
-	export ANDROID_SDK_ROOT=./share/sdk && \
-	avdmanager create avd \
-			-n ironhead_test \
-			-k "system-images;android-28;google_apis;x86_64" \
-			-p /opt/yadkin/share/images
+#	export JAVA_HOME=./share/$(JDKVER) &&
+#	export ANDROID_SDK_ROOT=./share/sdk &&
+#			-p /opt/yadkin/share/images
+#		-k "system-images;android-28;google_apis;x86_64"
+#android-device:
+#	cmd /c avdmanager.bat create avd \
+#		-n ironhead_test \
+#		-k "system-images;android-31;google_apis;x86_64" \
+#		-p `cygpath -w $(PREFIX)/share/images`
 
-
+# image - Build a new Android device
 image:
-	cd $(PREFIX)/share/yadkin/sdk/cmdline-tools/latest/bin/ && \
-		cmd /c avdmanager.bat --verbose create avd \
-			--force -d 18 -n yadkin_pixel_3 -k "system-images;android-31;default;x86_64" -p `cygpath -w $(PREFIX)/share/images`
+	cmd /c avdmanager.bat --verbose create avd \
+		--force -d 18 -n yadkin_pixel_3 \
+		-k "system-images;android-31;default;x86_64" \
+		-p `cygpath -w $(PREFIX)/share/images`
 
-
+# image - Build a new Android device
 image-list:
-	cd $(PREFIX)/share/yadkin/sdk/cmdline-tools/latest/bin/ && \
-		cmd /c avdmanager.bat list
+	cmd /c avdmanager.bat list avd
 
+# image-list-available - Build a new Android device
+image-list-available:
+	cmd /c avdmanager.bat list
 
+# image-help - Build a new Android device
 image-help:
-	cd $(PREFIX)/share/yadkin/sdk/cmdline-tools/latest/bin/ && \
-		cmd /c avdmanager.bat create avd --help 
+	cmd /c avdmanager.bat create avd --help 
 
+# image-start - Start an image
+image-start:
+	cmd /c
 	
 #		./share/sdk/cmdline-tools/latest/bin/sdkmanager --list $(TARGETS)
-#	export JAVA_HOME=`cygpath -w $$PWD/share/$(JDKVER)` && 
-#	export ANDROID_SDK_ROOT=`cygpath -w $$PWD/share/sdk` && 
-
 
 # sdl-deps - Just unpack SDL and friends
 sdl-deps:
 	-tar -xzf vendor/$(PKGSDL).tar.gz -C build/SDL
-
 
 # explain - List all the targets and what they do
 explain:
 	@sed -n '/^#/p' Makefile | sed 's/# //' | \
 		awk -F - '{ printf "%-12s %s\n", $$1, $$2 }'
 
+# android-app - Create an android app somewhere
+android-app:
+	printf ''
+
+# cli - Build a CLI to make apps and whatnot...
+cli:	
+	printf ''
 
 # clean - Remove dependencies
 clean:
 	rm -rf share/
 
-
 # docs - Create index.html
 docs:
 	markdown -S README.md > docs/index.html
 
-
 .PHONY: build docs
-
