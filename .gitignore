@@ -5,6 +5,7 @@ include/
 lib/
 share/
 workspace/
+Makefile
 
 # Specifically include descriptions
 !bin/README.md
