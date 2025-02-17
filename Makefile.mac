@@ -1,29 +1,49 @@
 # yadkin - Makefile for packaging Android
 NAME = yadkin
-VERSION = 0.04
+VERSION = 0.05
 PREFIX = /opt/$(NAME)
 BRANCH = mac
-SRCURL = yadkin.ironhead.io
-HTTPSRC = http://$(SRCURL)
+SRCURL = rwkapps.com/public
+HTTPSRC = https://$(SRCURL)
 REPOSRC = git://$(SRCURL)
-PKGSDL = SDL2-2.0.14
-COMPANY = ironhead 
-ORG = org.$(COMPANY).$(NAME)
+#PKGSDL = SDL2-2.0.14
+COMPANY = rwk 
+ORG = com.$(COMPANY).$(NAME)
 TARGETS = "build-tools;31.0.0" "cmdline-tools;latest" "platform-tools" "ndk-bundle" "system-images;android-31;default;x86_64"
-CLITOOLS = commandlinetools-$(BRANCH).tar.gz 
+CLITOOLS = commandlinetools-$(BRANCH)
 JDKBIN = OpenJDK8U-jdk_x64_$(BRANCH)_hotspot_8u312b07
 JDKVER = jdk8u312-b07
 
 
 # main - The primary target should just unpack deps (if needed), and download everything 
+#git clone $(REPOSRC)/yadkind.git -b $(BRANCH) --single-branch vendor
 main:
-	test -d vendor || git clone $(REPOSRC)/yadkind.git -b $(BRANCH) --single-branch vendor
+	test -d vendor/ || mkdir vendor/
 	-mkdir -p ./share/sdk/cmdline-tools/latest
-	-tar -xzf vendor/$(CLITOOLS) -C share/sdk/
+	test -f vendor/$(CLITOOLS).tar.gz || \
+		wget -O "vendor/$(CLITOOLS).tar.gz" "https://$(SRCURL)/yadkin/$(CLITOOLS).tar.gz"
+	#test -d vendor/$(CLITOOLS)/ && tar -xzf vendor/$(CLITOOLS).tar.gz -C share/sdk/
+	-tar -xzf vendor/$(CLITOOLS).tar.gz -C share/sdk/
+	test -f vendor/$(JDKBIN).tar.gz || \
+		wget -O "vendor/$(JDKBIN).tar.gz" "https://$(SRCURL)/yadkin/$(JDKBIN).tar.gz"
+	#test -d vendor/$(JDKBIN)/ && -tar -xzf vendor/$(JDKBIN).tar.gz -C share/
 	-tar -xzf vendor/$(JDKBIN).tar.gz -C share/
 	export JAVA_HOME=./share/$(JDKVER)/Contents/Home && \
 	export ANDROID_SDK_ROOT=./share/sdk && \
 		./share/sdk/cmdline-tools/bin/sdkmanager --sdk_root=./share/sdk/cmdline-tools $(TARGETS)
+
+
+# check-jdk - Check for the JDK, downloading it if there is nothing...
+# check-jdk:
+# printf ''
+
+# get-jdk - download the JDK if this is a blank system
+get-jdk:
+	test -f vendor/$(JDKBIN).tar.gz || wget https://$(SRCURL)/$(JDKBIN).tar.gz
+
+# get-cltools - download the command line tools if this is a blank system
+get-clitools:
+	test -f vendor/$(CLITOOLS).tar.gz || wget https://$(SRCURL)/$(CLITOOLS).tar.gz
 
 
 # install - Install
@@ -45,7 +65,7 @@ install:
 	echo "$(NAME) installed successfully, please restart your terminal or system for PATH changes to take effect."
 
 
-# android-device - Build a new Android device
+# android-device - Build an Android simulator device
 android-device:
 	export JAVA_HOME=./share/$(JDKVER) && \
 	export ANDROID_SDK_ROOT=./share/sdk && \
@@ -53,6 +73,10 @@ android-device:
 			-n ironhead_test \
 			-k "system-images;android-28;google_apis;x86_64" \
 			-p /opt/yadkin/share/images
+
+# ios-device - Build an iOS simulator device
+# ios-device:
+#	printf ''
 
 image:
 	cd $(PREFIX)/share/yadkin/sdk/cmdline-tools/latest/bin/ && \
@@ -68,8 +92,8 @@ image-help:
 		cmd /c avdmanager.bat create avd --help 
 
 # sdl-deps - Just unpack SDL and friends
-sdl-deps:
-	-tar -xzf vendor/$(PKGSDL).tar.gz -C build/SDL
+#sdl-deps:
+#	-tar -xzf vendor/$(PKGSDL).tar.gz -C build/SDL
 
 
 # explain - List all the targets and what they do

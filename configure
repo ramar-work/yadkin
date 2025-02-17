@@ -1,0 +1,4 @@
+#!/bin/bash -
+
+# Show a quick message while we work this out
+printf "Please copy the correct file manually using either 'cp Makefile.$PLATFORM Makefile' or 'ln Makefile.$PLATFORM Makefile'
