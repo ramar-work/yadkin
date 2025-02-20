@@ -17,17 +17,17 @@ JDKVER = jdk8u312-b07
 
 # main - The primary target should just unpack deps (if needed), and download everything 
 #git clone $(REPOSRC)/yadkind.git -b $(BRANCH) --single-branch vendor
+#test -d vendor/$(CLITOOLS)/ && tar -xzf vendor/$(CLITOOLS).tar.gz -C share/sdk/
+#test -d vendor/$(JDKBIN)/ && -tar -xzf vendor/$(JDKBIN).tar.gz -C share/
 main:
 	test -d vendor/ || mkdir vendor/
 	-mkdir -p ./share/sdk/cmdline-tools/latest
 	test -f vendor/$(CLITOOLS).tar.gz || \
 		wget -O "vendor/$(CLITOOLS).tar.gz" "https://$(SRCURL)/yadkin/$(CLITOOLS).tar.gz"
-	#test -d vendor/$(CLITOOLS)/ && tar -xzf vendor/$(CLITOOLS).tar.gz -C share/sdk/
-	-tar -xzf vendor/$(CLITOOLS).tar.gz -C share/sdk/
+	-tar -xzf vendor/$(CLITOOLS).tar.gz -C ./share/sdk/
 	test -f vendor/$(JDKBIN).tar.gz || \
 		wget -O "vendor/$(JDKBIN).tar.gz" "https://$(SRCURL)/yadkin/$(JDKBIN).tar.gz"
-	#test -d vendor/$(JDKBIN)/ && -tar -xzf vendor/$(JDKBIN).tar.gz -C share/
-	-tar -xzf vendor/$(JDKBIN).tar.gz -C share/
+	-tar -xzf vendor/$(JDKBIN).tar.gz -C ./share/
 	export JAVA_HOME=./share/$(JDKVER)/Contents/Home && \
 	export ANDROID_SDK_ROOT=./share/sdk && \
 		./share/sdk/cmdline-tools/bin/sdkmanager --sdk_root=./share/sdk/cmdline-tools $(TARGETS)
