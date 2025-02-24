@@ -1,7 +1,8 @@
 # yadkin - Makefile for packaging Android
 NAME = yadkin
-VERSION = 0.05
-PREFIX = /opt/$(NAME)
+VERSION = 0.06
+#PREFIX = /opt/$(NAME)
+PREFIX = $(HOME)/.$(NAME)
 BRANCH = mac
 SRCURL = rwkapps.com/public
 HTTPSRC = https://$(SRCURL)
@@ -32,6 +33,8 @@ main:
 	export ANDROID_SDK_ROOT=./share/sdk && \
 		./share/sdk/cmdline-tools/bin/sdkmanager --sdk_root=./share/sdk/cmdline-tools $(TARGETS)
 
+#	export ANDROID_SDK_ROOT=./share/sdk && \
+#		./share/sdk/cmdline-tools/bin/sdkmanager --sdk_root=./share/sdk/cmdline-tools $(TARGETS)
 
 # check-jdk - Check for the JDK, downloading it if there is nothing...
 # check-jdk:
@@ -47,22 +50,31 @@ get-clitools:
 
 
 # install - Install
+#	-0mv share $(PREFIX)/share/$(NAME)/
 install:
 	mkdir -p $(PREFIX)/bin/
 	mkdir -p $(PREFIX)/etc/$(NAME)/
 	mkdir -p $(PREFIX)/include/$(NAME)/
-	mkdir -p $(PREFIX)/share/
-	mv share $(PREFIX)/share/$(NAME)/
 	mkdir -p $(PREFIX)/share/$(NAME)/images/
+	# Create the Java/JVM dir
+	mv ./share/$(JDKVER) $(PREFIX)/share/$(NAME)/
 	ln -s $(PREFIX)/share/$(NAME)/$(JDKVER)/java $(PREFIX)/bin/
 	ln -s $(PREFIX)/share/$(NAME)/$(JDKVER)/keytool $(PREFIX)/bin/
+	# Create the SDK home
+	mv ./share/sdk/cmdline-tools $(PREFIX)/share/$(NAME)/sdk
 	ln -s $(PREFIX)/share/$(NAME)/sdk/platform-tools/adb $(PREFIX)/bin/
 	ln -s $(PREFIX)/share/$(NAME)/sdk/emulator/emulator $(PREFIX)/bin/
-	test -d /etc/zsh/ || mkdir -p /etc/zsh/
+	# Copy aliases and environment variables
+	@echo "$(NAME) was installed successfully, system for PATH changes to take effect."
+	cp environment/macos.env $(PREFIX)/$(NAME)-init.sh
+
+# ...
+configuration-install:
 	test -d /etc/profile.d/ || mkdir -p /etc/profile.d/
 	cp environment/unix.env /etc/profile.d/$(NAME).sh
+	test -d /etc/zsh/ || mkdir -p /etc/zsh/
 	cp environment/unix.env /etc/zsh/$(NAME).zsh
-	echo "$(NAME) installed successfully, please restart your terminal or system for PATH changes to take effect."
+	@echo "$(NAME) installed successfully, please restart your terminal or system for PATH changes to take effect."
 
 
 # android-device - Build an Android simulator device
