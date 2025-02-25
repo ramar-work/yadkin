@@ -11,8 +11,15 @@ COMPANY = rwk
 ORG = com.$(COMPANY).$(NAME)
 TARGETS = "build-tools;31.0.0" "cmdline-tools;latest" "platform-tools" "ndk-bundle" "system-images;android-31;default;x86_64"
 CLITOOLS = commandlinetools-$(BRANCH)
-JDKBIN = OpenJDK8U-jdk_x64_$(BRANCH)_hotspot_8u312b07
-JDKVER = jdk8u312-b07
+
+# Include OS info
+
+# Include Java build
+
+#JDKBIN = OpenJDK8U-jdk_x64_$(BRANCH)_hotspot_8u312b07
+#JDKVER = jdk8u312-b07
+JDKBIN = OpenJDK17U-jdk_x64_$(BRANCH)_hotspot_17.0.14_7
+JDKVER = jdk-17.0.14+7
 
 
 # main - The primary target should just unpack deps (if needed), and download everything 
