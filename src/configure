@@ -1,0 +1,149 @@
+#!/bin/sh -x
+
+# prefix
+PREFIX=/usr/local/bin
+# version
+VERSION=0.05
+# force os
+OSNAME=
+# default company/developer name
+COMPANY=itsamazing
+# default program name
+PROG=yadkin
+# verbosity
+VERBOSE=0
+# choose specific versions of JDK, Android, iOS, etc
+#VERS_JDK=
+#VERS_SDL=
+VERS_ANDROID=
+VERS_IOS=
+
+TAR=/bin/tar
+GZIP=/bin/gzip
+UNAME=/bin/uname
+JDKSRC_LINUX="OpenJDK17U-jdk_x64_linux_hotspot_17.0.5_8.tar.gz"
+JDKSRC_MAC="OpenJDK17U-jdk_x64_mac_hotspot_17.0.5_8.tar.gz"
+JDKSRC_WIN="OpenJDK17U-jdk_x64_windows_hotspot_17.0.5_8.zip"
+X="SDL2-2.24.2.tar.gz"
+X="SDL2_image-2.6.2.tar.gz"
+X="SDL2_mixer-2.6.2.tar.gz"
+X="SDL2_net-2.2.0.tar.gz"
+X="SDL2_ttf-2.20.1.tar.gz"
+
+#if test $# -lt 1
+#then
+#	echo "$0: No args specified."
+#	exit 1
+#fi 
+
+while [ $# -gt 0 ]
+do
+	case "$1" in
+		-p|--prefix)
+			shift
+			PREFIX=$1
+		;;
+		-c|--company)
+			shift
+			COMPANY=$1
+		;;
+		-o|--operating-system)
+			shift
+			OSNAME=$1
+		;;
+		-v|--verbose)
+			VERBOSE=1
+		;;
+		-h|--help)
+			cat <<EOF
+Usage: $0
+-p, --prefix \$DIR             Specify an alternate directory to install
+                              utilities.
+-c, --company \$NAME           Specify a default identifier for your projects
+                              (e.g. org.x.y for Android)
+-o, --operating-system \$DIR   Specify an alternate directory to install
+                              utilities.
+-v, --verbose                 Explain everything   
+-h, --help                    Show this help and quit
+EOF
+		;;
+	esac
+	shift
+done
+
+
+#if test -z "$OSNAME"
+#then
+#	echo "Operating system unspecified"
+#	exit 1
+#fi
+
+if test "`$TAR 2>/dev/null || echo $?`" -eq 127
+then
+	echo "tar not found."
+	exit 1
+fi
+
+#if test "`$GZIP 2>/dev/null || echo $?`" -eq 127
+#then
+#	echo "gzip not found."
+#	exit 1
+#fi
+
+if test "`$UNAME 2>/dev/null || echo $?`" -eq 127
+then
+	echo "gzip not found."
+	exit 1
+fi
+
+OSNAME=`$UNAME`
+
+if test $VERBOSE -eq 1
+then
+	cat <<EOF
+Building yadkin with the following configuration:
+PREFIX  = $PREFIX
+COMPANY = $COMPANY
+OSNAME  = $OSNAME
+EOF
+fi
+
+
+# Configure other variables
+OSOPT=`echo $OSNAME | awk '{ print substr(tolower($1),1,1) }'`
+
+if test -z "$OSOPT"
+then
+	echo Operating System is Unknown 
+	exit 1
+elif test ${OSOPT} = 'l'
+then
+	echo is Linux
+	JDKSRC=$JDKSRC_LINUX
+	MAKEFILE=Makefile.base
+elif $OSOPT = 'd'
+then
+	echo is Mac 
+	JDKSRC=$JDKSRC_MAC
+	MAKEFILE=Makefile.mac
+elif $OSOPT = 'c'
+then
+	echo is Cyg 
+	JDKSRC=$JDKSRC_LINUX
+	MAKEFILE=Makefile.cygwin
+else
+	echo is Unknown 
+	exit 1
+fi
+
+
+# Generate a Makefile
+sed "{
+	s#__PREFIX__#$PREFIX#g;
+	s/__COMPANY__/$COMPANY/g;
+	s/__OSNAME__/$OSNAME/g;
+	s/__JDKSRC__/$JDKSRC/g;
+}" build/$MAKEFILE > Makefile
+
+
+exit 0
