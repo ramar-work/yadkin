@@ -15,19 +15,15 @@ CLITOOLS = commandlinetools-$(BRANCH)
 # Include OS info
 
 # Include Java build
-
 #JDKBIN = OpenJDK8U-jdk_x64_$(BRANCH)_hotspot_8u312b07
 #JDKVER = jdk8u312-b07
 JDKBIN = OpenJDK17U-jdk_x64_$(BRANCH)_hotspot_17.0.14_7
 JDKVER = jdk-17.0.14+7
 
-
 # main - The primary target should just unpack deps (if needed), and download everything 
-#git clone $(REPOSRC)/yadkind.git -b $(BRANCH) --single-branch vendor
-#test -d vendor/$(CLITOOLS)/ && tar -xzf vendor/$(CLITOOLS).tar.gz -C share/sdk/
-#test -d vendor/$(JDKBIN)/ && -tar -xzf vendor/$(JDKBIN).tar.gz -C share/
 main:
 	test -d vendor/ || mkdir vendor/
+	-rm -rf ./share/*
 	-mkdir -p ./share/sdk/cmdline-tools/latest
 	test -f vendor/$(CLITOOLS).tar.gz || \
 		wget -O "vendor/$(CLITOOLS).tar.gz" "https://$(SRCURL)/yadkin/$(CLITOOLS).tar.gz"
@@ -39,24 +35,7 @@ main:
 	export ANDROID_SDK_ROOT=./share/sdk && \
 		./share/sdk/cmdline-tools/bin/sdkmanager --sdk_root=./share/sdk/cmdline-tools $(TARGETS)
 
-#	export ANDROID_SDK_ROOT=./share/sdk && \
-#		./share/sdk/cmdline-tools/bin/sdkmanager --sdk_root=./share/sdk/cmdline-tools $(TARGETS)
-
-# check-jdk - Check for the JDK, downloading it if there is nothing...
-# check-jdk:
-# printf ''
-
-# get-jdk - download the JDK if this is a blank system
-get-jdk:
-	test -f vendor/$(JDKBIN).tar.gz || wget https://$(SRCURL)/$(JDKBIN).tar.gz
-
-# get-cltools - download the command line tools if this is a blank system
-get-clitools:
-	test -f vendor/$(CLITOOLS).tar.gz || wget https://$(SRCURL)/$(CLITOOLS).tar.gz
-
-
 # install - Install
-#	-0mv share $(PREFIX)/share/$(NAME)/
 install:
 	mkdir -p $(PREFIX)/bin/
 	mkdir -p $(PREFIX)/etc/$(NAME)/
@@ -74,7 +53,7 @@ install:
 	@echo "$(NAME) was installed successfully, system for PATH changes to take effect."
 	cp environment/macos.env $(PREFIX)/$(NAME)-init.sh
 
-# ...
+# configuration-install - Install config files globally
 configuration-install:
 	test -d /etc/profile.d/ || mkdir -p /etc/profile.d/
 	cp environment/unix.env /etc/profile.d/$(NAME).sh
@@ -82,37 +61,12 @@ configuration-install:
 	cp environment/unix.env /etc/zsh/$(NAME).zsh
 	@echo "$(NAME) installed successfully, please restart your terminal or system for PATH changes to take effect."
 
-
-# android-device - Build an Android simulator device
-android-device:
-	export JAVA_HOME=./share/$(JDKVER) && \
-	export ANDROID_SDK_ROOT=./share/sdk && \
-	avdmanager create avd \
-			-n ironhead_test \
-			-k "system-images;android-28;google_apis;x86_64" \
-			-p /opt/yadkin/share/images
-
-# ios-device - Build an iOS simulator device
-# ios-device:
-#	printf ''
-
-image:
-	cd $(PREFIX)/share/yadkin/sdk/cmdline-tools/latest/bin/ && \
-		cmd /c avdmanager.bat --verbose create avd \
-			--force -d 18 -n yadkin_pixel_3 -k "system-images;android-31;default;x86_64" -p `cygpath -w $(PREFIX)/share/images`
-	
-image-list:
-	cd $(PREFIX)/share/yadkin/sdk/cmdline-tools/latest/bin/ && \
-		cmd /c avdmanager.bat list
-	
-image-help:
-	cd $(PREFIX)/share/yadkin/sdk/cmdline-tools/latest/bin/ && \
-		cmd /c avdmanager.bat create avd --help 
-
-# sdl-deps - Just unpack SDL and friends
-#sdl-deps:
-#	-tar -xzf vendor/$(PKGSDL).tar.gz -C build/SDL
-
+# uninstall - Get rid of this software and it's changes
+uninstall:
+	rm -rf $(PREFIX)/
+	test -f /etc/profile.d/$(NAME).sh && rm -f /etc/profile.d/$(NAME).sh
+	test -f /etc/zsh/$(NAME).zsh && rm -f /etc/zsh/$(NAME).zsh
+	echo "$(NAME) uninstalled successfully.  Please restart your terminal or system for PATH changes to take effect."
 
 # explain - List all the targets and what they do
 explain:
