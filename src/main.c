@@ -56,6 +56,7 @@
 	fprintf( stderr, __VA_ARGS__ ) && \
 	fprintf( stderr, "\n" )
 
+#define ANDROID_TEMPLATE_DIR "share/required/android"
 
 #define OPTIONSMSG \
 	"-c, --create <PATH>     Create an app at \\$PATH.\n" \
@@ -378,14 +379,6 @@ int main ( int argc, char *argv[] ) {
 				return 1;	
 			}	
 		}
-		else if ( !strcmp( *av, "-g" ) || !strcmp( *av, "--generate" ) ) {
-			opt.generate = 1;
-			av++;
-			if ( !( opt.file = *av ) ) {
-				HELP( "No argument specified for --generate." );
-				return 1;	
-			}	
-		}
 		else if ( !strcmp( *av, "-n" ) || !strcmp( *av, "--name" ) ) {
 			av++;
 			if ( !( opt.appname = *av ) ) {
@@ -402,6 +395,16 @@ int main ( int argc, char *argv[] ) {
 		else if ( !strcmp( *av, "-v" ) || !strcmp( *av, "--verbose" ) ) {
 			opt.verbose = 1;
 		}
+	#if 0
+		else if ( !strcmp( *av, "-g" ) || !strcmp( *av, "--generate" ) ) {
+			opt.generate = 1;
+			av++;
+			if ( !( opt.file = *av ) ) {
+				HELP( "No argument specified for --generate." );
+				return 1;	
+			}	
+		}
+	#endif
 		else {
 			HELP( "Unknown/unsupported flag: %s.", *av );
 			return 1;	
@@ -410,7 +413,7 @@ int main ( int argc, char *argv[] ) {
 
 	//Depending on what's used to create the app, we probably
 	//should also create the files for the backend too...
-	
+	#if 0	
 	if ( opt.generate ) {
 		//Just generate a blank file with keys that we'll most likely need
 		zTable *zt = NULL;
@@ -486,6 +489,7 @@ int main ( int argc, char *argv[] ) {
 		//Do a zrender dance...
 		lt_free( zt ), free( zt );
 	}
+	#endif
 	
 	//Trigger Android builds
 	if ( opt.create && opt.androidBuild ) {
@@ -561,9 +565,10 @@ int main ( int argc, char *argv[] ) {
 		}
 
 		//Copy all the files to the right places for now...
+		//TODO: What the hell is this?  Clean this up... no need for this
 		for ( 
 			const char src[ PATH_MAX ], dest[ PATH_MAX ],
-			*template_dir = "share/required/android",
+			*template_dir = ANDROID_TEMPLATE_DIR,
 			**file = android_files; *file; ++file ) 
 		{
 			memset( (void *)src, 0, PATH_MAX ), memset( (void *)dest, 0, PATH_MAX );
