@@ -56,7 +56,8 @@
 	fprintf( stderr, __VA_ARGS__ ) && \
 	fprintf( stderr, "\n" )
 
-#define ANDROID_TEMPLATE_DIR "share/required/android"
+// TODO: This should be under share/, but it just depends on where the libs are.  Might want to put this in a config file.
+#define ANDROID_TEMPLATE_DIR "resources/required/android"
 
 #define OPTIONSMSG \
 	"-c, --create <PATH>     Create an app at \\$PATH.\n" \
@@ -83,7 +84,6 @@ const char *strings[] = {
 };
 
 
-
 struct options {
 	int create;
 	char *createArg;
@@ -95,6 +95,7 @@ struct options {
 	int androidBuild;
 	int iosBuild;
 }; 
+
 
 struct options opt = {
 	.create = 0
@@ -192,7 +193,7 @@ struct symfile np_android[] = {
 
 
 
-//TODO: None of these should take an error buffer.  They are just utilities...
+/// TODO: None of these should take an error buffer.  They are just utilities...
 unsigned char *read_file ( const char *filename, int *len, char *err, int errlen ) {
 	//Check for and load whatever file
 	int fd, fstat, bytesRead, fileSize;
@@ -242,6 +243,7 @@ unsigned char *read_file ( const char *filename, int *len, char *err, int errlen
 
 
 
+/// Copy raw files :)
 int raw_copy( const char *src, const char *dest, char *err, int esize ) {
 	//...
 	unsigned char *data = NULL;
@@ -271,15 +273,11 @@ int raw_copy( const char *src, const char *dest, char *err, int esize ) {
 
 
 
-//Loads a file (src), and writes it to destination with replacements
+/// Loads a file (src), and writes it to destination with replacements
 int render_file ( const char *src, const char *dest, void *zd, char *err, int esize ) {
 	//TODO: This is awfully wordy... there's a better way...
 	int fd, size = 0, written = 0, dlen = 0;
 	unsigned char *content = NULL, *dd = NULL;
-
-	if ( opt.verbose ) {
-		fprintf( stderr, "Generating file %s\n", dest );
-	}
 
 	//Read in the contents
 	if ( !( content = read_file( src, &size, err, esize ) ) ) {
@@ -321,6 +319,7 @@ int render_file ( const char *src, const char *dest, void *zd, char *err, int es
 
 
 
+/// Randomly generate a string of text
 char * rand_gen ( int len ) {
 	const char randchar[] = "abcdefghijklmnopqrstuvwxyz0123456789";
 	char * buf = malloc ( len + 1 );
@@ -578,6 +577,8 @@ int main ( int argc, char *argv[] ) {
 				snprintf( (char *)src, PATH_MAX - 1, "%s/%s", template_dir, *file + 1 );	
 				snprintf( (char *)dest, PATH_MAX - 1, "%s/%s", opt.createArg, *file + 1 );
 
+        if ( opt.verbose ) fprintf( stderr, "Copying source file to %s\n", dest );
+
 				if ( !raw_copy( src, dest, err, sizeof( err ) ) ) {
 					HELP( "Error writing file: %s", err );
 					return 1;
@@ -586,6 +587,9 @@ int main ( int argc, char *argv[] ) {
 			else {
 				snprintf( (char *)src, PATH_MAX - 1, "%s/%s", template_dir, *file );	
 				snprintf( (char *)dest, PATH_MAX - 1, "%s/%s", opt.createArg, *file );
+
+	      if ( opt.verbose ) fprintf( stderr, "Generating file %s\n", dest );
+
 				if ( !render_file( src, dest, zt, err, sizeof( err ) ) ) {
 					HELP( "Error writing file: %s", err );
 					return 1;
@@ -594,7 +598,9 @@ int main ( int argc, char *argv[] ) {
 		}
 	#endif
 
-	#if 1
+fprintf( stderr, "table (should be null): %p\n", zt );
+
+	#if 0
 		//Create all the activities files...
 		if ( ( id = lt_geti( zt, "activities" ) ) > -1 ) {
 			//Copy all the activities into their own table 
@@ -631,7 +637,6 @@ int main ( int argc, char *argv[] ) {
 							HELP( "Key 'layout' not in activity '%s'", *k );
 							return 1;
 						}
-#if 0
 						
 						//TODO: Consider listing all the files in the directory
 						//Build a buffer for finding the template
@@ -658,7 +663,6 @@ int main ( int argc, char *argv[] ) {
 						}
 
 						//You can descend and create each of the layouts / fragments that are related here...
-#endif
 						lt_free( ii ), free( ii );
 					}
 				}
