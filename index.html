@@ -1,0 +1,15 @@
+<h1>yadkin</h1>
+
+<p>A bootstrapping tool for Android and it's dependencies.</p>
+
+<p>Installing this will allow to start building Android apps with little issue on Linux, Mac OS or Windows.  Its goal is to allow for building an Android toolchain with as little interference as possible while stayling light and scritable.  </p>
+
+<p>Primary uses for this toolchain are used with something like Flutter, for instance, to setup tools like the Android debugger, emulator and more.  It can also be used as a base for other cross platform tooling, like SDL.  Lastly, it can be used for a CI/CD chain on some other server where tooling like Android Studio cannot be installed.</p>
+
+<h2>Dependencies</h2>
+
+<p>A Bash shell if you'll only need the Android toolkit.  A C Compiler will be needed for the Android application template builder.</p>
+
+<h2>Usage</h2>
+
+<p>Running <code>make</code> with the target of your choice as an argument will pull down the JDK and the newest version of Android's command line tools.  Configuration of paths and versions can be done from the Makefile. </p>
