@@ -258,7 +258,7 @@ void zrender_set_fetchdata( zRender *rz, void *t ) {
 
 
 
-//...
+//Run this to change the marks used to define the start and end of a template
 void zrender_set_boundaries ( zRender *rz, const char *s, const char *end ) {
 	( s ) ? rz->zStart = zr_dupstr( s ) : 0;
 	( end ) ? rz->zEnd = zr_dupstr( end ) : 0;
@@ -373,11 +373,12 @@ int zrender_convert_marks( zRender *rz ) {
 		struct xmap *xp = init_xmap();
 		struct premap *pp = *pmap;
 		unsigned char *t = NULL;
+    char check[] = { rz->zStart[0], rz->zEnd[0], ' ', '\0' };
 		char xb[ 1024 ] = { 0 };
 		xp->parent = NULL;
 
 		//Raw write first
-		if ( *pp->ptr != '{' ) {
+		if ( *pp->ptr != *(rz->zStart) ) {
 			if ( !render ) 
 				free( xp );
 			else {
@@ -389,7 +390,7 @@ int zrender_convert_marks( zRender *rz ) {
 		}
 
 		//Get the "magic" character
-		t = zr_trim( pp->ptr, "{} ", pp->len, &nlen );
+		t = zr_trim( pp->ptr, check, pp->len, &nlen );
 		xp->type = rz->xmapset[ *t ];
 
 		if ( xp->type == LE ) {

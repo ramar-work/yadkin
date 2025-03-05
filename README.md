@@ -2,9 +2,7 @@
 
 A bootstrapping tool for Android and it's dependencies.
 
-Installing this will allow to start building Android apps with little issue on Linux, Mac OS or Windows.  Its goal is to allow for building an Android toolchain with as little interference as possible while stayling light and scritable.  
-
-Primary uses for this toolchain are used with something like Flutter, for instance, to setup tools like the Android debugger, emulator and more.  It can also be used as a base for other cross platform tooling, like SDL.  Lastly, it can be used for a CI/CD chain on some other server where tooling like Android Studio cannot be installed.
+Installing this will allow you to start building Android apps without dependence on Android Studio on Linux and Mac OS.  Its goal is to allow for building an Android toolchain with as little interference as possible while stayling light and scriptable.  The tools installed here can be used as a base for cross platform frameworks like SDL or Flutter.  Lastly, it can be used for a CI/CD chain on some other server where tooling like Android Studio cannot be installed.
 
 
 ## Dependencies

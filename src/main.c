@@ -89,6 +89,7 @@ struct options {
 	char *createArg;
 	int generate;
 	char *appname;
+	char *storename;
 	int verbose;
 	char *id;
 	char *file;
@@ -101,9 +102,10 @@ struct options opt = {
 	.create = 0
 ,	.createArg = NULL 
 ,	.generate = 0 
-,	.appname = NULL 
+,	.appname = "my_app" 
+,	.storename = "My App" 
 ,	.verbose = 0 
-,	.id = "example"
+,	.id = "example" // TODO: Use config.h.in to fix this
 ,	.file = "share/example.lua"
 , .androidBuild = 1
 , .iosBuild = 1
@@ -118,8 +120,12 @@ const char *android_dirs[] = {
 , "app/src/main"
 , "app/src/main/java"
 , "app/src/main/java/com"
+, "app/src/test/kotlin"
+, "app/src/test/kotlin/com"
 , "$app/src/main/java/com"	
 , "@app/src/main/java/com"	
+, "$app/src/test/kotlin"
+, "@app/src/test/kotlin/com"
 #if 0
 , "Fapp/src/main/java/com/-/-/fragments"
 #endif
@@ -151,13 +157,14 @@ const char *android_files[] = {
 , "$gradle.properties"
 , "$gradlew"
 , "$gradlew.bat"
-, "local.properties"
 , "settings.gradle"
 , "$gradle/wrapper/gradle-wrapper.jar"
 , "$gradle/wrapper/gradle-wrapper.properties"
 , "app/build.gradle"
 , "$app/proguard-rules.pro"
 , "app/src/main/AndroidManifest.xml"
+// This path needs to be: java/com/company/appname/
+//, "app/src/main/java/MainActivity.java"
 , "app/src/main/res/drawable/ic_launcher_background.xml"
 , "app/src/main/res/drawable-v24/ic_launcher_foreground.xml"
 , "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml"
@@ -385,6 +392,13 @@ int main ( int argc, char *argv[] ) {
 				return 1;	
 			}	
 		}
+		else if ( !strcmp( *av, "-s" ) || !strcmp( *av, "--store-name" ) ) {
+			av++;
+			if ( !( opt.storename = *av ) ) {
+				HELP( "No argument specified for --store-name." );
+				return 1;	
+			}	
+		}
 		else if ( !strcmp( *av, "--android-only" ) ) {
 			opt.iosBuild = 0;
 		}
@@ -493,47 +507,73 @@ int main ( int argc, char *argv[] ) {
 	//Trigger Android builds
 	if ( opt.create && opt.androidBuild ) {
 		char src_dir[ PATH_MAX ], layout_dir[ PATH_MAX ], fragments_dir[ PATH_MAX ];
+		char activity_dir[ PATH_MAX ];
 		int id = 0;
 
 		if ( opt.verbose ) {
-			fprintf( stdout, "Creating app: %s at %s\n", opt.appname, opt.createArg );
+			fprintf( stderr, "Creating app: %s at %s\n", opt.appname, opt.createArg );
 		}
 
-#if 0
-		//Try to load a Lua file. and do some stuff
-		if ( !lua_exec_file( L, opt.file, err, sizeof( err ) ) ) {
-			HELP( "Lua execution failure: %s.", err );
-			return 0;
+		if ( !strlen( opt.appname ) ) {
+			HELP( "No appname specified..." );
+			return 1;
 		}
-		
+
+    if ( !strlen( opt.id ) ) {
+			HELP( "No namespace identifier specified..." );
+			return 1;
+		}
+
+    if ( !strlen( opt.storename ) ) {
+			HELP( "No store/proper name specified..." );
+			return 1;
+		}
+
 		//Define a file just for testing...
 		if ( !( zt = lt_make( 1024 ) ) ) {
 			HELP( "ztable creation failed: %s.", lt_strerror ( zt ) );
 			return 0;
 		}
 
-		//Then convert it to table
-		if ( !lua_to_ztable( L, 1, zt ) ) {
-			HELP( "Failed to convert Lua to C structure." );
-			return 0;
-		}
+    // Add the identifier
+    lt_addtextkey( zt, "identifier" );
+    lt_addtextvalue( zt, opt.id );
+    lt_finalize( zt );
 
+    // Add app name
+    lt_addtextkey( zt, "app_name" );
+    lt_addtextvalue( zt, opt.appname );
+    lt_finalize( zt );
+
+    // Add the proper name
+    lt_addtextkey( zt, "app_proper_name" );
+    lt_addtextvalue( zt, opt.storename );
+    lt_finalize( zt );
+
+    //"Lock" the table (which simply creates a hash table of all values stored)
 		if ( !lt_lock( zt ) ) {
 			HELP( "Failed to lock zTable." );
 			return 0;
 		}
 
-		//We can extract some pieces from the file if specified...
-		if ( ( id = lt_geti( zt, "identifier" ) ) > -1 ) {
-			opt.id = lt_text_at( zt, id );	
+#if 0
+lt_dump( zt );
+lt_free( zt );
+exit(0);
+
+		//Try to load a Lua file. and do some stuff
+		if ( !lua_exec_file( L, opt.file, err, sizeof( err ) ) ) {
+			HELP( "Lua execution failure: %s.", err );
+			return 0;
+		}
+		
+		//Then convert it to table
+		if ( !lua_to_ztable( L, 1, zt ) ) {
+			HELP( "Failed to convert Lua to C structure." );
+			return 0;
 		}
 #endif 
 
-		//Check arguments and create the directory structures?
-		if ( !opt.appname ) {
-			HELP( "No appname specified..." );
-			return 1;
-		}
 
 	#if 1
 		//Create the host directory
@@ -564,7 +604,6 @@ int main ( int argc, char *argv[] ) {
 		}
 
 		//Copy all the files to the right places for now...
-		//TODO: What the hell is this?  Clean this up... no need for this
 		for ( 
 			const char src[ PATH_MAX ], dest[ PATH_MAX ],
 			*template_dir = ANDROID_TEMPLATE_DIR,
@@ -596,9 +635,10 @@ int main ( int argc, char *argv[] ) {
 				}
 			}
 		}
-	#endif
 
-fprintf( stderr, "table (should be null): %p\n", zt );
+    // This is the only one we're doing manually, simply because I don't have a rule for it above
+    
+	#endif
 
 	#if 0
 		//Create all the activities files...

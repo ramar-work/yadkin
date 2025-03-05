@@ -3,9 +3,8 @@ NAME = yadkin
 VERSION = 0.06
 PREFIX = $(HOME)/.$(NAME)
 BRANCH = mac
-SRCURL = rwkapps.com/public
-HTTPSRC = https://$(SRCURL)
-REPOSRC = git://$(SRCURL)
+SRCURL = https://ramar.work/public
+#REPOSRC = git://ramar.work
 #PKGSDL = SDL2-2.0.14
 COMPANY = rwk 
 ORG = com.$(COMPANY).$(NAME)
@@ -26,10 +25,10 @@ main:
 	-rm -rf ./share/*
 	-mkdir -p ./share/sdk/cmdline-tools/latest
 	test -f vendor/$(CLITOOLS).tar.gz || \
-		wget -O "vendor/$(CLITOOLS).tar.gz" "https://$(SRCURL)/yadkin/$(CLITOOLS).tar.gz"
+		wget -O "vendor/$(CLITOOLS).tar.gz" "$(SRCURL)/yadkin/$(CLITOOLS).tar.gz"
 	-tar -xzf vendor/$(CLITOOLS).tar.gz -C ./share/sdk/
 	test -f vendor/$(JDKBIN).tar.gz || \
-		wget -O "vendor/$(JDKBIN).tar.gz" "https://$(SRCURL)/yadkin/$(JDKBIN).tar.gz"
+		wget -O "vendor/$(JDKBIN).tar.gz" "$(SRCURL)/yadkin/$(JDKBIN).tar.gz"
 	-tar -xzf vendor/$(JDKBIN).tar.gz -C ./share/
 	export JAVA_HOME=./share/$(JDKVER)/Contents/Home && \
 	export ANDROID_SDK_ROOT=./share/sdk && \

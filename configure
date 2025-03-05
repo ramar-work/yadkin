@@ -233,10 +233,10 @@ exit
 
 # Generate Makefiles
 $SED "{
-	s#__PREFIX__#$PREFIX#g;
-	s/__COMPANY__/$COMPANY/g;
-	s/__OSNAME__/$OSNAME/g;
-	s/__JDKSRC__/$JDKSRC/g;
+	s#@@PREFIX@@#$PREFIX#g;
+	s/@@COMPANY@@/$COMPANY/g;
+	s/@@OSNAME@@/$OSNAME/g;
+	s/@@JDKSRC@@/$JDKSRC/g;
 }" makefiles/$MAKEFILE > Makefile
 
 
