@@ -15,6 +15,9 @@ Makefile
 *.o
 *.so
 
+# Mac Only
+.DS_Store
+
 # Personal stuff
 TODO
 

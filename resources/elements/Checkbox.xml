@@ -1,0 +1,6 @@
+<CheckBox
+	android:id="@+id/checkbox_meat"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:text="A checkbox"
+	android:onClick="onCheckboxClicked" />

@@ -1,0 +1,8 @@
+{
+	"appProperName": "Jam Jam"
+,	"appName": "jam_jam"
+,	"identifier": "com.ironhead"
+, "dependencies": [
+		"volley"
+	]
+}

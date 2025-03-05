@@ -1,0 +1,18 @@
+<RadioGroup 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <RadioButton android:id="@+id/radio_pirates"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pirates"
+        android:onClick="onRadioButtonClicked"/>
+
+    <RadioButton android:id="@+id/radio_ninjas"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ninjas"
+        android:onClick="onRadioButtonClicked"/>
+
+</RadioGroup>
