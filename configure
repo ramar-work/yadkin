@@ -1,22 +1,30 @@
 #!/bin/sh -x
 
+# configure script for yadkin
+
+# software name
+NAME=yadkin
 # prefix
-PREFIX=/usr/local/bin
+PREFIX="${HOME}/.${NAME}"
+# executable prefix
+BINPREFIX="/usr/local/bin"
 # version
 VERSION=0.05
-# force os
+# force os (NOTE: $OSTYPE is defined on Linux.  Wonder if it's the same for Mac and Windows?)
 OSNAME=
 # default company/developer name
 COMPANY=itsamazing
 # default program name
 PROG=yadkin
 # verbosity
-VERBOSE=0
+VERBOSE=1
 # choose specific versions of JDK, Android, iOS, etc
 #VERS_JDK=
 #VERS_SDL=
 VERS_ANDROID=
 VERS_IOS=
+# format for configure-style messages
+FMT="%-30s"
 
 TAR=/bin/tar
 SED=/bin/sed
@@ -68,6 +76,11 @@ do
 			VERBOSE=1
 		;;
 
+		# Print no status messages
+		--no-verbose)
+			VERBOSE=0
+		;;
+
     # ...  
 		-h|--help)
 			cat <<EOF
@@ -87,7 +100,7 @@ EOF
 done
 
 # Check for awk
-printf "checking for awk...   "
+test $VERBOSE -eq 1 && printf "$FMT" "checking for awk..."
 if ! test -x "$AWK"
 then
   # Try finding it via which
@@ -109,7 +122,7 @@ fi
 
 
 # Check for sed
-printf "checking for sed...   "
+test $VERBOSE -eq 1 && printf "$FMT" "checking for sed..."
 if ! test -x "$SED"
 then
   # Try finding it via which
@@ -131,7 +144,7 @@ fi
 
 
 # Check for tar
-printf "checking for tar...   "
+test $VERBOSE -eq 1 && printf "$FMT" "checking for tar..."
 if ! test -x "$TAR"
 then
   # Try finding it via which
@@ -151,15 +164,31 @@ then
   printf "Done!\n"
 fi
 
+
 # Check for gzip (though it's rare that anyone uses this filter with tar) 
-#if test "`$GZIP 2>/dev/null || echo $?`" -eq 127
+#test $VERBOSE -eq 1 && printf "$FMT" "checking for gzip..."
+#if ! test -x "$GZIP"
 #then
-#	echo "gzip not found."
-#	exit 1
+#  # Try finding it via which
+#  if test "`which 2>/dev/null || echo $?`" -eq 127
+#  then
+#    echo "Dependency 'gzip' not found."
+#    exit 1
+#  fi
+#
+#  # Look for it
+#  GZIP="`which gzip`"
+#  if ! test -x "$GZIP"
+#  then
+#    echo "Dependency 'gzip' not found."
+#    exit 1
+#  fi 
+#  printf "Done!\n"
 #fi
 
+
 # Check for uname
-printf "checking for uname...   "
+test $VERBOSE -eq 1 && printf "$FMT" "checking for uname..."
 if ! test -x "$UNAME"
 then
   # Try finding it via which
@@ -194,9 +223,10 @@ if test $VERBOSE -eq 1
 then
 	cat <<EOF
 Building yadkin with the following configuration:
-PREFIX  = $PREFIX
-COMPANY = $COMPANY
-OSNAME  = $OSNAME
+PREFIX  = $PREFIX (The Android SDK, its dependencies will be installed here)
+BINPREFIX = $BINPREFIX (Tooling to aid development will be installed here)
+COMPANY = $COMPANY (This is the default application identifier)
+OSNAME  = $OSNAME (This is the operating system that will be built for)
 EOF
 fi
 
@@ -228,7 +258,6 @@ else
 	echo is Unknown 
 	exit 1
 fi
-exit
 
 
 # Generate Makefiles

@@ -1,0 +1,87 @@
+# yadkin - Makefile for packaging Android
+NAME = yadkin
+VERSION = 0.06
+PREFIX = $(HOME)/.$(NAME)
+BRANCH = mac
+SRCURL = https://ramar.work/public
+#REPOSRC = git://ramar.work
+#PKGSDL = SDL2-2.0.14
+COMPANY = rwk 
+ORG = com.$(COMPANY).$(NAME)
+TARGETS = "build-tools;31.0.0" "cmdline-tools;latest" "platform-tools" "ndk-bundle" "system-images;android-31;default;x86_64"
+CLITOOLS = commandlinetools-$(BRANCH)
+
+# Include OS info
+
+# Include Java build
+#JDKBIN = OpenJDK8U-jdk_x64_$(BRANCH)_hotspot_8u312b07
+#JDKVER = jdk8u312-b07
+JDKBIN = OpenJDK17U-jdk_x64_$(BRANCH)_hotspot_17.0.14_7
+JDKVER = jdk-17.0.14+7
+
+# main - The primary target should just unpack deps (if needed), and download everything 
+main:
+	test -d vendor/ || mkdir vendor/
+	-rm -rf ./share/*
+	-mkdir -p ./share/sdk/cmdline-tools/latest
+	test -f vendor/$(CLITOOLS).tar.gz || \
+		wget -O "vendor/$(CLITOOLS).tar.gz" "$(SRCURL)/yadkin/$(CLITOOLS).tar.gz"
+	-tar -xzf vendor/$(CLITOOLS).tar.gz -C ./share/sdk/
+	test -f vendor/$(JDKBIN).tar.gz || \
+		wget -O "vendor/$(JDKBIN).tar.gz" "$(SRCURL)/yadkin/$(JDKBIN).tar.gz"
+	-tar -xzf vendor/$(JDKBIN).tar.gz -C ./share/
+	export JAVA_HOME=./share/$(JDKVER)/Contents/Home && \
+	export ANDROID_SDK_ROOT=./share/sdk && \
+		./share/sdk/cmdline-tools/bin/sdkmanager --sdk_root=./share/sdk/cmdline-tools $(TARGETS)
+
+# install - Install
+install:
+	mkdir -p $(PREFIX)/bin/
+	mkdir -p $(PREFIX)/etc/$(NAME)/
+	mkdir -p $(PREFIX)/include/$(NAME)/
+	mkdir -p $(PREFIX)/share/$(NAME)/images/
+	# Create the Java/JVM dir
+	mv ./share/$(JDKVER) $(PREFIX)/share/$(NAME)/
+	ln -s $(PREFIX)/share/$(NAME)/$(JDKVER)/java $(PREFIX)/bin/
+	ln -s $(PREFIX)/share/$(NAME)/$(JDKVER)/keytool $(PREFIX)/bin/
+	# Create the SDK home
+	mv ./share/sdk/cmdline-tools $(PREFIX)/share/$(NAME)/sdk
+	ln -s $(PREFIX)/share/$(NAME)/sdk/platform-tools/adb $(PREFIX)/bin/
+	ln -s $(PREFIX)/share/$(NAME)/sdk/emulator/emulator $(PREFIX)/bin/
+	# Copy aliases and environment variables
+	@echo "$(NAME) was installed successfully, system for PATH changes to take effect."
+	cp environment/macos.env $(PREFIX)/$(NAME)-init.sh
+
+# configuration-install - Install config files globally
+configuration-install:
+	test -d /etc/profile.d/ || mkdir -p /etc/profile.d/
+	cp environment/unix.env /etc/profile.d/$(NAME).sh
+	test -d /etc/zsh/ || mkdir -p /etc/zsh/
+	cp environment/unix.env /etc/zsh/$(NAME).zsh
+	@echo "$(NAME) installed successfully, please restart your terminal or system for PATH changes to take effect."
+
+# uninstall - Get rid of this software and it's changes
+uninstall:
+	rm -rf $(PREFIX)/
+	test -f /etc/profile.d/$(NAME).sh && rm -f /etc/profile.d/$(NAME).sh
+	test -f /etc/zsh/$(NAME).zsh && rm -f /etc/zsh/$(NAME).zsh
+	echo "$(NAME) uninstalled successfully.  Please restart your terminal or system for PATH changes to take effect."
+
+# explain - List all the targets and what they do
+explain:
+	@sed -n '/^#/p' Makefile | sed 's/# //' | \
+		awk -F - '{ printf "%-12s %s\n", $$1, $$2 }'
+
+
+# clean - Remove dependencies
+clean:
+	rm -rf share/
+
+
+# docs - Create index.html
+docs:
+	markdown -S README.md > docs/index.html
+
+
+.PHONY: build docs
+
