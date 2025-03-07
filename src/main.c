@@ -76,11 +76,14 @@ struct app {
 };
 
 
-const char *strings[] = {
-	"appname"
-,	"app_proper_name"
-, "identifier"
-,	"dependencies"
+struct file { 
+	const char *filename;
+	const mode_t mode;
+};
+
+
+struct symfile {
+	const char *name, *spath, *dpath;
 };
 
 
@@ -98,6 +101,14 @@ struct options {
 }; 
 
 
+const char *strings[] = {
+	"appname"
+,	"app_proper_name"
+, "identifier"
+,	"dependencies"
+};
+
+
 struct options opt = {
 	.create = 0
 ,	.createArg = NULL 
@@ -112,88 +123,83 @@ struct options opt = {
 };
 
 
-const char *android_dirs[] = {
-	"app"
-, "app/libs"
-, "app/src"
-, "app/src/androidTest"
-, "app/src/main"
-, "app/src/main/java"
-, "app/src/main/java/com"
-, "app/src/main/kotlin"
-, "app/src/main/kotlin/com"
-, "$app/src/main/java/com"	
-, "@app/src/main/java/com"	
-, "$app/src/main/kotlin/com"
-, "@app/src/main/kotlin/com"
+struct file android_dirs[] = {
+ 	{ "app", 0755 }
+, { "app/libs", 0755 }
+, { "app/src", 0755 }
+, { "app/src/androidTest", 0755 }
+, { "app/src/main", 0755 }
+, { "app/src/main/java", 0755 }
+, { "app/src/main/java/com", 0755 }
+, { "app/src/main/kotlin", 0755 }
+, { "app/src/main/kotlin/com", 0755 }
+, { "$app/src/main/java/com", 0755 }
+, { "@app/src/main/java/com", 0755 }
+, { "$app/src/main/kotlin/com", 0755 }
+, { "@app/src/main/kotlin/com", 0755 }
 #if 0
-, "Fapp/src/main/java/com/-/-/fragments"
+, { "Fapp/src/main/java/com/-/-/fragments", 0755 }
 #endif
-, "app/src/main/res"
-, "app/src/main/res/drawable"
-, "app/src/main/res/drawable-v24"
-, "app/src/main/res/font"
-, "app/src/main/res/mipmap-anydpi-v26"
-, "app/src/main/res/mipmap-hdpi"
-, "app/src/main/res/mipmap-mdpi"
-, "app/src/main/res/mipmap-xhdpi"
-, "app/src/main/res/mipmap-xxhdpi"
-, "app/src/main/res/mipmap-xxxhdpi"
-, "app/src/main/res/values"
-, "app/src/main/res/values-night"
-, "app/src/test"
-, "app/src/test/java"
-, "app/src/test/java/com"
-, "$app/src/test/java/com"
-, "@app/src/test/java/com"
-, "app/src/test/kotlin"
-, "app/src/test/kotlin/com"
-, "$app/src/test/kotlin/com"
-, "@app/src/test/kotlin/com"
-, "gradle"
-, "gradle/wrapper"
-,	NULL
+, { "app/src/main/res", 0755 }
+, { "app/src/main/res/drawable", 0755 }
+, { "app/src/main/res/drawable-v24", 0755 }
+, { "app/src/main/res/font", 0755 }
+, { "app/src/main/res/mipmap-anydpi-v26", 0755 }
+, { "app/src/main/res/mipmap-hdpi", 0755 }
+, { "app/src/main/res/mipmap-mdpi", 0755 }
+, { "app/src/main/res/mipmap-xhdpi", 0755 }
+, { "app/src/main/res/mipmap-xxhdpi", 0755 }
+, { "app/src/main/res/mipmap-xxxhdpi", 0755 }
+, { "app/src/main/res/values", 0755 }
+, { "app/src/main/res/values-night", 0755 }
+, { "app/src/test", 0755 }
+, { "app/src/test/java", 0755 }
+, { "app/src/test/java/com", 0755 }
+, { "$app/src/test/java/com", 0755 }
+, { "@app/src/test/java/com", 0755 }
+, { "app/src/test/kotlin", 0755 }
+, { "app/src/test/kotlin/com", 0755 }
+, { "$app/src/test/kotlin/com", 0755 }
+, { "@app/src/test/kotlin/com", 0755 }
+, { "gradle", 0755 }
+, { "gradle/wrapper", 0755 }
+,	{ NULL, -1 }
 };
 
 
-const char *android_files[] = {
-  "$build.gradle"
-, "$gradle.properties"
-, "$gradlew"
-, "$gradlew.bat"
-, "settings.gradle"
-, "$gradle/wrapper/gradle-wrapper.jar"
-, "$gradle/wrapper/gradle-wrapper.properties"
-, "app/build.gradle"
-, "$app/proguard-rules.pro"
-, "app/src/main/AndroidManifest.xml"
+struct file android_files[] = {
+  { "$build.gradle", 0644 }
+, { "$gradle.properties", 0644 }
+, { "$gradlew", 0755 }
+, { "$gradlew.bat", 0644 }
+, { "settings.gradle", 0644 }
+, { "$gradle/wrapper/gradle-wrapper.jar", 0644 }
+, { "$gradle/wrapper/gradle-wrapper.properties", 0644 }
+, { "app/build.gradle", 0644 }
+, { "$app/proguard-rules.pro", 0644 }
+, { "app/src/main/AndroidManifest.xml", 0644 }
 // This path needs to be: java/com/company/appname/
-, "app/src/main/res/drawable/ic_launcher_background.xml"
-, "app/src/main/res/drawable-v24/ic_launcher_foreground.xml"
-, "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml"
-, "app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml"
-, "$app/src/main/res/mipmap-hdpi/ic_launcher.webp"
-, "$app/src/main/res/mipmap-hdpi/ic_launcher_round.webp"
-, "$app/src/main/res/mipmap-mdpi/ic_launcher.webp"
-, "$app/src/main/res/mipmap-mdpi/ic_launcher_round.webp"
-, "$app/src/main/res/mipmap-xhdpi/ic_launcher.webp"
-, "$app/src/main/res/mipmap-xhdpi/ic_launcher_round.webp"
-, "$app/src/main/res/mipmap-xxhdpi/ic_launcher.webp"
-, "$app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp"
-, "$app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp"
-, "$app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp"
-, "app/src/main/res/values/colors.xml"
-, "app/src/main/res/values/strings.xml"
-, "app/src/main/res/values/themes.xml"
-, "app/src/main/res/values-night/themes.xml"
-, "@app/src/main/java/#/#/#/MainActivity.java"
-, "@app/src/main/kotlin/#/#/#/MainActivity.kt"
-, NULL
-};
-
-
-struct symfile {
-	const char *name, *spath, *dpath;
+, { "app/src/main/res/drawable/ic_launcher_background.xml", 0644 }
+, { "app/src/main/res/drawable-v24/ic_launcher_foreground.xml", 0644 }
+, { "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml", 0644 }
+, { "app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml", 0644 }
+, { "$app/src/main/res/mipmap-hdpi/ic_launcher.webp", 0644 }
+, { "$app/src/main/res/mipmap-hdpi/ic_launcher_round.webp", 0644 }
+, { "$app/src/main/res/mipmap-mdpi/ic_launcher.webp", 0644 }
+, { "$app/src/main/res/mipmap-mdpi/ic_launcher_round.webp", 0644 }
+, { "$app/src/main/res/mipmap-xhdpi/ic_launcher.webp", 0644 }
+, { "$app/src/main/res/mipmap-xhdpi/ic_launcher_round.webp", 0644 }
+, { "$app/src/main/res/mipmap-xxhdpi/ic_launcher.webp", 0644 }
+, { "$app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp", 0644 }
+, { "$app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp", 0644 }
+, { "$app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp", 0644 }
+, { "app/src/main/res/values/colors.xml", 0644 }
+, { "app/src/main/res/values/strings.xml", 0644 }
+, { "app/src/main/res/values/themes.xml", 0644 }
+, { "app/src/main/res/values-night/themes.xml", 0644 }
+, { "@app/src/main/java/#/#/#/MainActivity.java", 0644 }
+, { "@app/src/main/kotlin/#/#/#/MainActivity.kt", 0644 }
+,	{ NULL, -1 }
 };
 
 
@@ -256,7 +262,7 @@ unsigned char *read_file ( const char *filename, int *len, char *err, int errlen
 
 
 /// Copy raw files :)
-int raw_copy( const char *src, const char *dest, char *err, int esize ) {
+int raw_copy( const char *src, const char *dest, char *err, int esize, mode_t mode ) {
 	//...
 	unsigned char *data = NULL;
 	int dlen = 0, fd = 0, w = 0;
@@ -267,7 +273,7 @@ int raw_copy( const char *src, const char *dest, char *err, int esize ) {
 	}
 	
 	//Open the destination
-	if ( ( fd = open( dest, O_RDWR | O_CREAT, 0655 ) ) == -1 ) {
+	if ( ( fd = open( dest, O_RDWR | O_CREAT, mode ) ) == -1 ) {
 		snprintf( err, esize, "Failed to open %s: %s", dest, strerror( errno ) ); 
 		return 0;
 	}
@@ -286,7 +292,7 @@ int raw_copy( const char *src, const char *dest, char *err, int esize ) {
 
 
 /// Loads a file (src), and writes it to destination with replacements
-int render_file ( const char *src, const char *dest, void *zd, char *err, int esize ) {
+int render_file ( const char *src, const char *dest, void *zd, char *err, int esize, mode_t mode ) {
 	//TODO: This is awfully wordy... there's a better way...
 	int fd, size = 0, written = 0, dlen = 0;
 	unsigned char *content = NULL, *dd = NULL;
@@ -298,7 +304,7 @@ int render_file ( const char *src, const char *dest, void *zd, char *err, int es
 	} 
 
 	//Open a file
-	if ( ( fd = open( dest, O_RDWR | O_CREAT, 0755 ) ) == -1 ) {
+	if ( ( fd = open( dest, O_RDWR | O_CREAT, mode ) ) == -1 ) {
 		snprintf( err, esize, "Failed to open file - %s: %s", dest, strerror( errno ) );
 		return 0;
 	}
@@ -591,52 +597,54 @@ exit(0);
 		}
 
 		//Create all the directories
-		for ( const char fb[ PATH_MAX ], **dir = android_dirs; *dir != NULL; ++dir ) {
+		for ( struct file *dir = android_dirs; dir->filename != NULL; ++dir ) {
+
+			const char fb[ PATH_MAX ];
 			memset( (void *)fb, 0, PATH_MAX );
 
-			if ( **dir == '$' )
-				snprintf( (char *)fb, PATH_MAX - 1, "%s/%s/%s", opt.createArg, *dir + 1, opt.id );
-			else if ( **dir == '@' )
-				snprintf( (char *)fb, PATH_MAX - 1, "%s/%s/%s/%s", opt.createArg, *dir + 1, opt.id, opt.appname );
-			else if ( **dir == 'F' )
-				snprintf( (char *)fb, PATH_MAX - 1, "%s/%s/%s/%s/fragments", opt.createArg, *dir + 1, opt.id, opt.appname );
+			if ( *dir->filename == '$' )
+				snprintf( (char *)fb, PATH_MAX - 1, "%s/%s/%s", opt.createArg, dir->filename + 1, opt.id );
+			else if ( *dir->filename == '@' )
+				snprintf( (char *)fb, PATH_MAX - 1, "%s/%s/%s/%s", opt.createArg, dir->filename + 1, opt.id, opt.appname );
+			else if ( *dir->filename == 'F' )
+				snprintf( (char *)fb, PATH_MAX - 1, "%s/%s/%s/%s/fragments", opt.createArg, dir->filename + 1, opt.id, opt.appname );
 			else {
-				snprintf( (char *)fb, PATH_MAX - 1, "%s/%s", opt.createArg, *dir );
+				snprintf( (char *)fb, PATH_MAX - 1, "%s/%s", opt.createArg, dir->filename );
 			}
 
-			if ( mkdir( fb, 0755 ) == -1 ) {
-				//If this thing shuts down, you should delete the entire folder
+			//TODO: Proper clean up should be done in case there are failures.
+			if ( mkdir( fb, dir->mode ) == -1 ) {
 				HELP( "Failed to create directory: %s; %s.", fb, strerror( errno ) );
 				return 1;
 			}
+
 		}
 
 		//Copy all the files to the right places for now...
-		for ( 
-			const char src[ PATH_MAX ], dest[ PATH_MAX ],
-			*template_dir = ANDROID_TEMPLATE_DIR,
-			**file = android_files; *file; ++file ) 
-		{
+		for ( struct file *file = android_files; file->filename; ++file ) {
+
+			const char template_dir[] = ANDROID_TEMPLATE_DIR;
+			const char src[ PATH_MAX ], dest[ PATH_MAX ];
 			memset( (void *)src, 0, PATH_MAX ), memset( (void *)dest, 0, PATH_MAX );
 
 			//The $ sign with files means do a raw copy...
-			if ( **file == '$' ) {
-				snprintf( (char *)src, PATH_MAX - 1, "%s/%s", template_dir, *file + 1 );	
-				snprintf( (char *)dest, PATH_MAX - 1, "%s/%s", opt.createArg, *file + 1 );
+			if ( *file->filename == '$' ) {
+				snprintf( (char *)src, PATH_MAX - 1, "%s/%s", template_dir, file->filename + 1 );	
+				snprintf( (char *)dest, PATH_MAX - 1, "%s/%s", opt.createArg, file->filename + 1 );
 
         if ( opt.verbose ) fprintf( stderr, "Copying source file to %s\n", dest );
 
-				if ( !raw_copy( src, dest, err, sizeof( err ) ) ) {
+				if ( !raw_copy( src, dest, err, sizeof( err ), file->mode ) ) {
 					HELP( "Error writing file: %s", err );
 					return 1;
 				}
 			}
 			// The @ sign denotes a render to a "variable" location (like /path/to/${opt.id}/file)
-			else if ( **file == '@' ) {
-				snprintf( (char *)src, PATH_MAX - 1, "%s/%s", template_dir, *file + 1 );	
+			else if ( *file->filename == '@' ) {
+				snprintf( (char *)src, PATH_MAX - 1, "%s/%s", template_dir, file->filename + 1 );	
 				snprintf( (char *)dest, PATH_MAX - 1, "%s/", opt.createArg );
 				int times = 0;
-				for ( char *f = (char *)*file + 1, *d = (char *)dest + strlen( opt.createArg ) + 1; *f; f++ ) {
+				for ( char *f = (char *)file->filename + 1, *d = (char *)dest + strlen( opt.createArg ) + 1; *f; f++ ) {
 					if ( *f != '#' )
 						*d = *f, d++;
 					else {
@@ -650,17 +658,17 @@ exit(0);
 					}
 				}
 	      if ( opt.verbose ) fprintf( stderr, "Generating file %s\n", dest );
-				if ( !render_file( src, dest, zt, err, sizeof( err ) ) ) {
+				if ( !render_file( src, dest, zt, err, sizeof( err ), file->mode ) ) {
 					HELP( "Error writing file: %s", err );
 					return 1;
 				}
 			}
 			else {
-				snprintf( (char *)src, PATH_MAX - 1, "%s/%s", template_dir, *file );	
-				snprintf( (char *)dest, PATH_MAX - 1, "%s/%s", opt.createArg, *file );
+				snprintf( (char *)src, PATH_MAX - 1, "%s/%s", template_dir, file->filename );	
+				snprintf( (char *)dest, PATH_MAX - 1, "%s/%s", opt.createArg, file->filename );
 
 	      if ( opt.verbose ) fprintf( stderr, "Generating file %s\n", dest );
-				if ( !render_file( src, dest, zt, err, sizeof( err ) ) ) {
+				if ( !render_file( src, dest, zt, err, sizeof( err ), file->mode ) ) {
 					HELP( "Error writing file: %s", err );
 					return 1;
 				}
