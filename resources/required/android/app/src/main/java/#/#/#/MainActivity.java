@@ -1,3 +1,4 @@
+// MainActivity.java - Write your own stuff in here to get started...
 package com.[[ identifier ]].[[ app_name ]]; 
 
 import androidx.appcompat.app.AppCompatActivity;

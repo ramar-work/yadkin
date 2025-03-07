@@ -168,7 +168,6 @@ const char *android_files[] = {
 , "$app/proguard-rules.pro"
 , "app/src/main/AndroidManifest.xml"
 // This path needs to be: java/com/company/appname/
-//, "app/src/main/java/MainActivity.java"
 , "app/src/main/res/drawable/ic_launcher_background.xml"
 , "app/src/main/res/drawable-v24/ic_launcher_foreground.xml"
 , "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml"
@@ -187,6 +186,8 @@ const char *android_files[] = {
 , "app/src/main/res/values/strings.xml"
 , "app/src/main/res/values/themes.xml"
 , "app/src/main/res/values-night/themes.xml"
+, "@app/src/main/java/#/#/#/MainActivity.java"
+, "@app/src/main/kotlin/#/#/#/MainActivity.kt"
 , NULL
 };
 
@@ -630,12 +631,35 @@ exit(0);
 					return 1;
 				}
 			}
+			// The @ sign denotes a render to a "variable" location (like /path/to/${opt.id}/file)
+			else if ( **file == '@' ) {
+				snprintf( (char *)src, PATH_MAX - 1, "%s/%s", template_dir, *file + 1 );	
+				snprintf( (char *)dest, PATH_MAX - 1, "%s/", opt.createArg );
+				int times = 0;
+				for ( char *f = (char *)*file + 1, *d = (char *)dest + strlen( opt.createArg ) + 1; *f; f++ ) {
+					if ( *f != '#' )
+						*d = *f, d++;
+					else {
+						if ( times == 0 )
+							memcpy( d, "com", 3 ), d += 3, times++;
+						else if ( times == 1 )
+							memcpy( d, opt.id, strlen( opt.id ) ), d += strlen( opt.id ), times++;
+						else if ( times == 2 ) {
+							memcpy( d, opt.appname, strlen( opt.appname ) ), d += strlen( opt.appname ), times++;
+						}
+					}
+				}
+	      if ( opt.verbose ) fprintf( stderr, "Generating file %s\n", dest );
+				if ( !render_file( src, dest, zt, err, sizeof( err ) ) ) {
+					HELP( "Error writing file: %s", err );
+					return 1;
+				}
+			}
 			else {
 				snprintf( (char *)src, PATH_MAX - 1, "%s/%s", template_dir, *file );	
 				snprintf( (char *)dest, PATH_MAX - 1, "%s/%s", opt.createArg, *file );
 
 	      if ( opt.verbose ) fprintf( stderr, "Generating file %s\n", dest );
-
 				if ( !render_file( src, dest, zt, err, sizeof( err ) ) ) {
 					HELP( "Error writing file: %s", err );
 					return 1;
