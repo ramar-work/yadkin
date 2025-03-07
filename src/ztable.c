@@ -913,42 +913,6 @@ const char *lt_strerror ( zTable *t ) {
 	return ( t->error > -1 && t->error <= ZTABLE_ERR_LT_INDEX_MAX) ? lt_errors[ (int)t->error ] : NULL; 
 }
 
-//Retrieve each of the (full) keys used to generate a table
-//This is mostly for testing, but could be useful in general...
-const char ** lt_get_keys ( zTable *t ) {
-	const char ** list = NULL;
-	//I MIGHT be able to do this w/o (but it takes so damn long)
-	for ( int i = 0, sz = 2; i < t->index -1; i++, sz++ ) {
-		zKeyval *k = t->head + i; 	
-		char *buf = malloc( LT_BUFLEN );
-		memset( buf, 0, LT_BUFLEN );
-
-		if ( build_backwards( k, (unsigned char *)buf, LT_BUFLEN ) == -1 ) {
-			//t->error = BACKWARDS_KEY_BUILD_FAILURE_YAH;
-			fprintf( stderr, "failed to initialize bakcwards\n" );
-			return NULL;
-		}
-			
-		//Reallocate
-		if ( !( list = realloc( list, sizeof( char * ) * sz )) ) {
-			//t->error = ALLOCATION_FAILURE_YAH;
-			fprintf( stderr, "failed to allocate list\n" );
-			free( list );
-			return NULL;
-		}
-
-		list[ i ] = buf, list[ sz - 1 ] = NULL;
-	}	
-	return list;
-}
-
-
-void lt_free_keys ( const char **list ) {
-	for ( const char **l = list; *l; l++ ) {
-		free( (void *)*l );
-	}
-	free( list );
-}
 
 #ifdef DEBUG_H 
 //Print out an initialized table
@@ -1143,6 +1107,7 @@ int __lt_dump ( zKeyval *kv, int i, void *p ) {
 }
 #else
 int __lt_dump ( zKeyval *kv, int ii, void *p ) {	
+#if 0
 	//Define things
 	zhInner *pp = (zhInner *)p;
 	int w = 0, maxlen = ( pp->dumptype == LT_DUMP_LONG ) ? 24576 : lt_buflen;
@@ -1221,12 +1186,51 @@ int __lt_dump ( zKeyval *kv, int ii, void *p ) {
 			}
 		}
 	}
-	write( pp->fd, b, w );
+
+	//This is just too big
+	write( pp->fd, b, ( w > maxlen ) ? maxlen - 1 : w );
 	write( pp->fd, "\n", 1 );
+#endif
 	return 1;
 }
 #endif
 
+//Retrieve each of the (full) keys used to generate a table
+//This is mostly for testing, but could be useful in general...
+const char ** lt_get_keys ( zTable *t ) {
+	const char ** list = NULL;
+	//I MIGHT be able to do this w/o (but it takes so damn long)
+	for ( int i = 0, sz = 2; i < t->index -1; i++, sz++ ) {
+		zKeyval *k = t->head + i; 	
+		char *buf = malloc( LT_BUFLEN );
+		memset( buf, 0, LT_BUFLEN );
+
+		if ( build_backwards( k, (unsigned char *)buf, LT_BUFLEN ) == -1 ) {
+			//t->error = BACKWARDS_KEY_BUILD_FAILURE_YAH;
+			fprintf( stderr, "failed to initialize bakcwards\n" );
+			return NULL;
+		}
+			
+		//Reallocate
+		if ( !( list = realloc( list, sizeof( char * ) * sz )) ) {
+			//t->error = ALLOCATION_FAILURE_YAH;
+			fprintf( stderr, "failed to allocate list\n" );
+			free( list );
+			return NULL;
+		}
+
+		list[ i ] = buf, list[ sz - 1 ] = NULL;
+	}	
+	return list;
+}
+
+
+void lt_free_keys ( const char **list ) {
+	for ( const char **l = list; *l; l++ ) {
+		free( (void *)*l );
+	}
+	free( list );
+}
 
 
 #endif

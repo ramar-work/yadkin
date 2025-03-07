@@ -515,12 +515,12 @@ void lt_clearerror (zTable *);
 
 int build_backwards (zKeyval *, unsigned char *, int );
 
+#ifdef DEBUG_H
+void lt_printt (zTable *);
+
 void lt_free_keys ( const char ** );
 
 const char ** lt_get_keys ( zTable * );
-
-#ifdef DEBUG_H
-void lt_printt (zTable *);
 #endif
 
 #endif
