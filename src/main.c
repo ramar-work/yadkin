@@ -120,12 +120,12 @@ const char *android_dirs[] = {
 , "app/src/main"
 , "app/src/main/java"
 , "app/src/main/java/com"
-, "app/src/test/kotlin"
-, "app/src/test/kotlin/com"
+, "app/src/main/kotlin"
+, "app/src/main/kotlin/com"
 , "$app/src/main/java/com"	
 , "@app/src/main/java/com"	
-, "$app/src/test/kotlin"
-, "@app/src/test/kotlin/com"
+, "$app/src/main/kotlin/com"
+, "@app/src/main/kotlin/com"
 #if 0
 , "Fapp/src/main/java/com/-/-/fragments"
 #endif
@@ -146,6 +146,10 @@ const char *android_dirs[] = {
 , "app/src/test/java/com"
 , "$app/src/test/java/com"
 , "@app/src/test/java/com"
+, "app/src/test/kotlin"
+, "app/src/test/kotlin/com"
+, "$app/src/test/kotlin/com"
+, "@app/src/test/kotlin/com"
 , "gradle"
 , "gradle/wrapper"
 ,	NULL
@@ -273,8 +277,8 @@ int raw_copy( const char *src, const char *dest, char *err, int esize ) {
 		return 0;
 	}
 
-	//Close the destination
-	close( fd );
+	//Free the data and close the destination
+	free( data ), close( fd );
 	return 1;
 }
 
@@ -315,6 +319,9 @@ int render_file ( const char *src, const char *dest, void *zd, char *err, int es
 		snprintf( err, esize, "Failed to write to file - %s: %s", dest, strerror( errno ) );
 		return 0;
 	}
+
+	//Close the file
+	close(fd);
 	
 	//And free the content
 	free( content ), free( dd );
