@@ -4,8 +4,12 @@ build/
 include/
 lib/
 share/
+tests/
 workspace/
+
+# Files
 Makefile
+yadkin-init.sh
 
 # Specifically include descriptions
 !bin/README.md

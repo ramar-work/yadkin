@@ -2,14 +2,17 @@
 
 # configure script for yadkin
 
+# TODO:
+# Add the ability to change the JVM in use (>17)
+# Add the ability to upgrade the Android build in use by default
+# Perhaps replace the different Makefiles with one Makefile
+
 # software name
 NAME=yadkin
-# prefix
-PREFIX="${HOME}/.${NAME}"
-# executable prefix
-BINPREFIX="/usr/local/bin"
 # version
-VERSION=0.05
+VERSION=0.06
+# prefix (libraries will be in the right place if installed globally and under this directory if it's supposed to be self-contained)
+PREFIX="/usr/local"
 # force os (NOTE: $OSTYPE is defined on Linux.  Wonder if it's the same for Mac and Windows?)
 OSNAME=
 # default company/developer name
@@ -25,15 +28,20 @@ VERS_ANDROID=
 VERS_IOS=
 # format for configure-style messages
 FMT="%-30s"
+# The home of the dependencies so far
+SRCURL=https://ramar.work/public/yadkin
 
+# Dependencies we'll need to run this
 TAR=/bin/tar
 SED=/bin/sed
 AWK=/bin/awk
 GZIP=/bin/gzip
 UNAME=/bin/uname
-JDKSRC_LINUX="OpenJDK17U-jdk_x64_linux_hotspot_17.0.5_8.tar.gz"
-JDKSRC_MAC="OpenJDK17U-jdk_x64_mac_hotspot_17.0.5_8.tar.gz"
-JDKSRC_WIN="OpenJDK17U-jdk_x64_windows_hotspot_17.0.5_8.zip"
+
+# NOTE: These can most definitely change, but they work w/ the newest versions of Gradle and Kotlin without fail
+JDKBIN_LINUX="OpenJDK17U-jdk_x64_linux_hotspot_17.0.14_7.tar.gz"
+JDKBIN_MAC="OpenJDK17U-jdk_x64_mac_hotspot_17.0.14_7.tar.gz"
+JDKBIN_WIN="OpenJDK17U-jdk_x64_windows_hotspot_17.0.14_7.zip"
 
 #if test $# -lt 1
 #then
@@ -98,6 +106,7 @@ EOF
 	esac
 	shift
 done
+
 
 # Check for awk
 test $VERBOSE -eq 1 && printf "$FMT" "checking for awk..."
@@ -218,23 +227,20 @@ OSNAME=`$UNAME 2>/dev/null`
 #fi
 
 
-
+# Dump any variables
 if test $VERBOSE -eq 1
 then
 	cat <<EOF
 Building yadkin with the following configuration:
-PREFIX  = $PREFIX (The Android SDK, its dependencies will be installed here)
-BINPREFIX = $BINPREFIX (Tooling to aid development will be installed here)
+PREFIX  = $PREFIX (The Android SDK, its dependencies and C tooling will be installed here)
 COMPANY = $COMPANY (This is the default application identifier)
 OSNAME  = $OSNAME (This is the operating system that will be built for)
 EOF
 fi
 
 
-# Configure other variables
+# Configure anything OS-specific
 OSOPT=`echo $OSNAME | $AWK '{ print substr(tolower($1),1,1) }'`
-
-
 if test -z "$OSOPT"
 then
 	echo Operating System is Unknown 
@@ -242,31 +248,46 @@ then
 elif test $OSOPT == 'l'
 then
 	echo is Linux
-	JDKSRC=$JDKSRC_LINUX
+	JDKBIN=$JDKBIN_LINUX
 	MAKEFILE=Makefile.linux
+	CONFIGFILE=unix.env
 elif test $OSOPT == 'd'
 then
 	echo is Mac 
-	JDKSRC=$JDKSRC_MAC
+	JDKBIN=$JDKBIN_MAC
 	MAKEFILE=Makefile.mac
+	CONFIGFILE=macos.env
 elif test $OSOPT == 'c'
 then
 	echo is Cyg 
-	JDKSRC=$JDKSRC_LINUX
+	# TODO: Is this not Windows?
+	JDKBIN=$JDKBIN_LINUX
 	MAKEFILE=Makefile.cygwin
+	CONFIGFILE=cygwin.env
 else
 	echo is Unknown 
 	exit 1
 fi
 
 
-# Generate Makefiles
+# Generate a Makefile
+$SED "{
+	s/@@COMPANY@@/$COMPANY/g;
+	s/@@JDKBIN@@/$JDKBIN/g;
+	s/@@OSNAME@@/$OSNAME/g;
+	s#@@PREFIX@@#$PREFIX#g;
+	s#@@SRCURL@@#$SRCURL#g;
+	s/@@VERSION@@/$VERSION/g;
+}" makefiles/${MAKEFILE}.in > Makefile
+
+
+# Generate a environment file as well
 $SED "{
 	s#@@PREFIX@@#$PREFIX#g;
 	s/@@COMPANY@@/$COMPANY/g;
 	s/@@OSNAME@@/$OSNAME/g;
 	s/@@JDKSRC@@/$JDKSRC/g;
-}" makefiles/$MAKEFILE > Makefile
+}" environment/${CONFIGFILE}.in > yadkin-init.sh
 
 
 exit 0
