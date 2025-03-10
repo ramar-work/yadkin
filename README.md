@@ -12,5 +12,6 @@ A Bash shell if you'll only need the Android toolkit.  A C Compiler will be need
 
 ## Usage
 
-Running `make` with the target of your choice as an argument will pull down the JDK and the newest version of Android's command line tools.  Configuration of paths and versions can be done from the Makefile. 
+Running `configure` will (attempt to) build a Makefile suitable for your system.  You can override the default choice by specifying the --ostype flag with the symbolic name of your OS.  (e.g. "linux" if you want a Linux compatible Makefile).
 
+Once that's complete, running `make` will pull down the Java Development Kit, the newest version of Android's command line tools, and the utilities for building Android projects from scratch.   NOTE: If you wish to disable any of these features, do so from the `configure` script in the top-level of this repository.  You won't have to mess with the Makefile this way and will save some frustration.

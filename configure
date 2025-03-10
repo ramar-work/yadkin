@@ -39,9 +39,9 @@ GZIP=/bin/gzip
 UNAME=/bin/uname
 
 # NOTE: These can most definitely change, but they work w/ the newest versions of Gradle and Kotlin without fail
-JDKBIN_LINUX="OpenJDK17U-jdk_x64_linux_hotspot_17.0.14_7.tar.gz"
-JDKBIN_MAC="OpenJDK17U-jdk_x64_mac_hotspot_17.0.14_7.tar.gz"
-JDKBIN_WIN="OpenJDK17U-jdk_x64_windows_hotspot_17.0.14_7.zip"
+JDKBIN_LINUX="OpenJDK17U-jdk_x64_linux_hotspot_17.0.14_7"
+JDKBIN_MAC="OpenJDK17U-jdk_x64_mac_hotspot_17.0.14_7"
+JDKBIN_WIN="OpenJDK17U-jdk_x64_windows_hotspot_17.0.14_7"
 
 #if test $# -lt 1
 #then

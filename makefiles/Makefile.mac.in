@@ -1,38 +1,42 @@
 # yadkin - Makefile for packaging Android
 NAME = yadkin
-VERSION = 0.06
-PREFIX = $(HOME)/.$(NAME)
 BRANCH = mac
-SRCURL = https://ramar.work/public
-#REPOSRC = git://ramar.work
-#PKGSDL = SDL2-2.0.14
-COMPANY = rwk 
+VERSION = @@VERSION@@
+PREFIX = @@PREFIX@@
+SRCURL = @@SRCURL@@
+COMPANY = @@COMPANY@@ 
 ORG = com.$(COMPANY).$(NAME)
-TARGETS = "build-tools;31.0.0" "cmdline-tools;latest" "platform-tools" "ndk-bundle" "system-images;android-31;default;x86_64"
 CLITOOLS = commandlinetools-$(BRANCH)
-
-# Include OS info
-
-# Include Java build
-#JDKBIN = OpenJDK8U-jdk_x64_$(BRANCH)_hotspot_8u312b07
-#JDKVER = jdk8u312-b07
-JDKBIN = OpenJDK17U-jdk_x64_$(BRANCH)_hotspot_17.0.14_7
+TARGETS = "build-tools;31.0.0" "cmdline-tools;latest" "platform-tools" "ndk-bundle" "system-images;android-31;default;x86_64"
+JDKBIN = @@JDKBIN@@
 JDKVER = jdk-17.0.14+7
 
-# main - The primary target should just unpack deps (if needed), and download everything 
-main:
+
+# main - Unpack dependencies and build the C utility
+main: dependencies utility
+	@printf "Build completed."
+
+
+# main - Android SDK, NDK and JDK dependencies
+dependencies:
 	test -d vendor/ || mkdir vendor/
-	-rm -rf ./share/*
+	-rm -rf ./share/
 	-mkdir -p ./share/sdk/cmdline-tools/latest
 	test -f vendor/$(CLITOOLS).tar.gz || \
-		wget -O "vendor/$(CLITOOLS).tar.gz" "$(SRCURL)/yadkin/$(CLITOOLS).tar.gz"
-	-tar -xzf vendor/$(CLITOOLS).tar.gz -C ./share/sdk/
+		wget -O "vendor/$(CLITOOLS).tar.gz" "$(SRCURL)/$(CLITOOLS).tar.gz"
+	tar -xzf vendor/$(CLITOOLS).tar.gz -C ./share/sdk/
 	test -f vendor/$(JDKBIN).tar.gz || \
-		wget -O "vendor/$(JDKBIN).tar.gz" "$(SRCURL)/yadkin/$(JDKBIN).tar.gz"
-	-tar -xzf vendor/$(JDKBIN).tar.gz -C ./share/
+		wget -O "vendor/$(JDKBIN).tar.gz" "$(SRCURL)/$(JDKBIN).tar.gz"
+	tar -xzf vendor/$(JDKBIN).tar.gz -C ./share/
 	export JAVA_HOME=./share/$(JDKVER)/Contents/Home && \
 	export ANDROID_SDK_ROOT=./share/sdk && \
 		./share/sdk/cmdline-tools/bin/sdkmanager --sdk_root=./share/sdk/cmdline-tools $(TARGETS)
+
+
+# utility - The builder utility for default Android projects
+utility:
+	cd src/ && $(MAKE)
+
 
 # install - Install
 install:
@@ -49,9 +53,16 @@ install:
 	ln -s $(PREFIX)/share/$(NAME)/sdk/platform-tools/adb $(PREFIX)/bin/
 	ln -s $(PREFIX)/share/$(NAME)/sdk/emulator/emulator $(PREFIX)/bin/
 	# Copy aliases and environment variables
+	mv yadkin-init.sh $(PREFIX)/etc/$(NAME)/yadkin-init.sh
 	@echo "$(NAME) was installed successfully, system for PATH changes to take effect."
-	cp environment/macos.env $(PREFIX)/$(NAME)-init.sh
+	@echo "If you installed this to a non-standard location (like \$$HOME/.yadkin), be"
+	@echo "sure to add the following line to your .bashrc or .bash_profile:"
+	@echo
+	@echo "test -f \"$(PREFIX)/.yadkin\" && source \"$(PREFIX)/.yadkin\""
+	@echo
 
+
+# TODO: This needs further testing and is only useful if the user is globally installing Yadkin
 # configuration-install - Install config files globally
 configuration-install:
 	test -d /etc/profile.d/ || mkdir -p /etc/profile.d/
@@ -60,12 +71,21 @@ configuration-install:
 	cp environment/unix.env /etc/zsh/$(NAME).zsh
 	@echo "$(NAME) installed successfully, please restart your terminal or system for PATH changes to take effect."
 
+
 # uninstall - Get rid of this software and it's changes
 uninstall:
-	rm -rf $(PREFIX)/
-	test -f /etc/profile.d/$(NAME).sh && rm -f /etc/profile.d/$(NAME).sh
-	test -f /etc/zsh/$(NAME).zsh && rm -f /etc/zsh/$(NAME).zsh
-	echo "$(NAME) uninstalled successfully.  Please restart your terminal or system for PATH changes to take effect."
+	-rm -rf $(PREFIX)/etc/$(NAME)/
+	-rm -rf $(PREFIX)/include/$(NAME)/
+	-rm -rf $(PREFIX)/share/$(NAME)/
+	-rm -f $(PREFIX)/bin/$(NAME)
+	#-rm -f $(PREFIX)/bin/java # Renaming yadkin's install of Java could be helpful
+	#-rm -f $(PREFIX)/bin/keytool # Likewise this and the following two lines
+	#-rm -f $(PREFIX)/bin/adb
+	#-rm -f $(PREFIX)/bin/emulator
+	-rm -f /etc/profile.d/$(NAME).sh
+	-rm -f /etc/zsh/$(NAME).zsh
+	echo "$(NAME) was uninstalled from your system.  Please either restart your terminal or reboot your system for PATH changes to take effect."
+
 
 # explain - List all the targets and what they do
 explain:
@@ -75,7 +95,13 @@ explain:
 
 # clean - Remove dependencies
 clean:
-	rm -rf share/
+	-rm -rf share/
+	-rm -f yadkin-init.sh
+
+
+# veryclean - Remove dependencies and generated Makefile
+veryclean: clean
+	rm -f Makefile
 
 
 # docs - Create index.html
@@ -84,4 +110,3 @@ docs:
 
 
 .PHONY: build docs
-

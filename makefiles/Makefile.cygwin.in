@@ -103,7 +103,12 @@ cli:
 
 # clean - Remove dependencies
 clean:
-	rm -rf share/
+	-rm -rf share/
+	-rm -f yadkin-init.sh
+
+# veryclean - Remove dependencies and generated Makefile
+veryclean: clean
+	rm -f Makefile
 
 # docs - Create index.html
 docs:
