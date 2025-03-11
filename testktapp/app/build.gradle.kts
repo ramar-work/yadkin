@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.kotlintestapp"
+    namespace = "com.rwk.testktapp"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.kotlintestapp"
+        applicationId = "com.rwk.testktapp"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
