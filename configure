@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 
 # configure script for yadkin
 
@@ -9,25 +9,40 @@
 
 # software name
 NAME=yadkin
+
 # version
 VERSION=0.06
+
 # prefix (libraries will be in the right place if installed globally and under this directory if it's supposed to be self-contained)
 PREFIX="/usr/local"
+
 # force os (NOTE: $OSTYPE is defined on Linux.  Wonder if it's the same for Mac and Windows?)
 OSNAME=
+
 # default company/developer name
 COMPANY=itsamazing
+
 # default program name
 PROG=yadkin
+
 # verbosity
-VERBOSE=1
-# choose specific versions of JDK, Android, iOS, etc
-#VERS_JDK=
-#VERS_SDL=
-VERS_ANDROID=
-VERS_IOS=
+VERBOSE=0
+
+# Specify the JDK to use
+JDKVER=17
+
+# Specify a PATH to a currently installed JDK if managed through some other means
+JDKPATH=
+
+# Specify a version of Android
+ANDROIDVER=( 31 )
+
+# Specify a version of iOS
+IOSVER=
+
 # format for configure-style messages
 FMT="%-30s"
+
 # The home of the dependencies so far
 SRCURL=https://ramar.work/public/yadkin
 
@@ -59,19 +74,54 @@ do
 			PREFIX=$1
 		;;
 
+		# TODO: Add support for --prefix= like typical ./configure
+#		--prefix*)
+#			shift
+#			PREFIX=$1
+#		;;
+
     # COMPANY is the organization identifier used for any new apps generated with this tool
 		-c|--company)
 			shift
 			COMPANY=$1
 		;;
 
+		# DOMAIN should eventually be supported to allow differentation between 'com', 'org', 'net', etc.
+#		-d|--domain)
+#			shift
+#			COMPANY=$1
+#		;;
+
+		# IDENTIFIER can be chopped as well.  Because it's less work to type out ;)
+#		-i|--identifier)
+#			shift
+#			IDENTIFIER=$1
+#		;;
+
     # Specify a JDK URL or version
-    -j|--jdk)
+    -j|--jdk-version)
+			shift
+			JDKVER=$1
+    ;;
+
+		# Specify the JDK path
+    --jdk-path)
+			shift
+			JDKVER=$1
     ;;
 
     # Specify the versions of Android you'd like present once this is complete
-    -a|--android-builds)
-    ;;
+#    -a|--android-versions)
+#			shift
+#			# TODO: Chop up the string here or specify it muliple times
+#			# TODO: Also consider specifying a range (e.g. 11..22)
+#			shift
+#			ANDROIDVER=( 31 )
+#    ;;
+
+    # Specify the versions of Android you'd like present once this is complete
+    #-i|--ios-versions)
+    #;;
 
     # OS Detection should work, but this would override those rules 
 		-o|--operating-system)
@@ -91,17 +141,24 @@ do
 
     # ...  
 		-h|--help)
+#-a, --android-versions        Specify a set of Android versions to download before we begin.
+#-s, --ios-versions            Specify a set of iOS versions to download before we begin.
+#-i, --identifier              Specify a default identifier for new projects.
+#    --jdk-path \$PATH         Specify a path to the JDK if already installed.
 			cat <<EOF
 Usage: $0
 -p, --prefix \$DIR             Specify an alternate directory to install
                               utilities.
--c, --company \$NAME           Specify a default identifier for your projects
+-c, --company \$NAME           Specify a default identifier for your projects.
                               (e.g. org.x.y for Android)
--o, --operating-system \$DIR   Specify an alternate directory to install
+-j, --jdk-version \$VER        Specify a default identifier for your projects.
+-o, --osname \$NAME            Specify an alternate directory to install
                               utilities.
--v, --verbose                 Explain everything   
+-v, --verbose                 Explain everything. 
+    --no-verbose              Explain nothing (default).
 -h, --help                    Show this help and quit
 EOF
+			exit 0
 		;;
 	esac
 	shift
