@@ -121,7 +121,13 @@ struct options opt = {
 , .iosBuild = 1
 };
 
-
+/**
+ * Quick notes on syntax:
+ * 
+ * '' - Creates a directory at the path referenced by the string 
+ * $  - Recursively creates a directory with the project $ID being the last child in the series
+ * @  - Recursively creates a directory with the project $APPNAME being the last child in the series
+ */
 struct file android_dirs[] = {
  	{ "app", 0755 }
 , { "app/libs", 0755 }
@@ -130,12 +136,8 @@ struct file android_dirs[] = {
 , { "app/src/main", 0755 }
 , { "app/src/main/java", 0755 }
 , { "app/src/main/java/com", 0755 }
-, { "app/src/main/kotlin", 0755 }
-, { "app/src/main/kotlin/com", 0755 }
 , { "$app/src/main/java/com", 0755 }
 , { "@app/src/main/java/com", 0755 }
-, { "$app/src/main/kotlin/com", 0755 }
-, { "@app/src/main/kotlin/com", 0755 }
 #if 0
 , { "Fapp/src/main/java/com/-/-/fragments", 0755 }
 #endif
@@ -167,20 +169,32 @@ struct file android_dirs[] = {
 };
 
 
+/**
+ * Quick notes on syntax:
+ * 
+ * $  - Copy files with no changes relative to the newly created application directory.
+ * '' - Run templating on a file and create a file relative to the newly created application directory.
+ * @  - Run templating on a file and create a file relative to the newly created application directory, but:
+ *      place said file under a variable location.
+ */
 struct file android_files[] = {
-  { "$build.gradle", 0644 }
+ // { "$build.gradle", 0644 }
+  { "$build.gradle.kts", 0644 }
 , { "$gradle.properties", 0644 }
 , { "$gradlew", 0755 }
 , { "$gradlew.bat", 0644 }
-, { "settings.gradle", 0644 }
+//, { "settings.gradle", 0644 }
+, { "settings.gradle.kts", 0644 }
+// TODO: Find out if we actually need this or if running Gradle will create it
 , { "$gradle/wrapper/gradle-wrapper.jar", 0644 }
 , { "$gradle/wrapper/gradle-wrapper.properties", 0644 }
-, { "app/build.gradle", 0644 }
+//, { "app/build.gradle", 0644 }
+, { "app/build.gradle.kts", 0644 }
 , { "$app/proguard-rules.pro", 0644 }
 , { "app/src/main/AndroidManifest.xml", 0644 }
 , { "$app/src/main/res/drawable/ic_launcher_background.xml", 0644 }
 , { "$app/src/main/res/drawable-v24/ic_launcher_foreground.xml", 0644 }
-, { "$app/src/main/res/layout/activity_main.xml", 0644 }
+//, { "$app/src/main/res/layout/activity_main.xml", 0644 }
 , { "$app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml", 0644 }
 , { "$app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml", 0644 }
 , { "$app/src/main/res/mipmap-hdpi/ic_launcher.webp", 0644 }
@@ -194,13 +208,13 @@ struct file android_files[] = {
 , { "$app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp", 0644 }
 , { "$app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp", 0644 }
 	// ???
-, { "$app/src/main/res/values/colors.xml", 0644 }
+//, { "$app/src/main/res/values/colors.xml", 0644 }
 , { "app/src/main/res/values/strings.xml", 0644 }
-, { "app/src/main/res/values/themes.xml", 0644 }
+//, { "app/src/main/res/values/themes.xml", 0644 }
 	// ???
 	//, { "app/src/main/res/values-night/themes.xml", 0644 }
-, { "@app/src/main/java/#/#/#/MainActivity.java", 0644 }
-	//, { "@app/src/main/kotlin/#/#/#/MainActivity.kt", 0644 }
+//, { "@app/src/main/java/#/#/#/MainActivity.java", 0644 }
+, { "@app/src/main/java/#/#/#/MainActivity.kt", 0644 }
 ,	{ NULL, -1 }
 };
 

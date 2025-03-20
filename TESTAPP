@@ -1,0 +1,13 @@
+Files edu/compose/codelab/app/build.gradle.kts and yadkin/ktapptmp/app/build.gradle.kts differ
+Only in yadkin/ktapptmp/app: libs
+Only in edu/compose/codelab/app/src/main: AndroidManifest2.xml
+Files edu/compose/codelab/app/src/main/AndroidManifest.xml and yadkin/ktapptmp/app/src/main/AndroidManifest.xml differ
+Files edu/compose/codelab/app/src/main/java/com/rwk/testktapp/MainActivity.kt and yadkin/ktapptmp/app/src/main/java/com/rwk/testktapp/MainActivity.kt differ
+Only in edu/compose/codelab/app/src/main/res/values: colors2.xml
+Files edu/compose/codelab/app/src/main/res/values/strings.xml and yadkin/ktapptmp/app/src/main/res/values/strings.xml differ
+Only in edu/compose/codelab/app/src/main/res/values: themes.xml
+Only in yadkin/ktapptmp/app/src: test
+Only in yadkin/ktapptmp/: .git
+Only in yadkin/ktapptmp/: .gradle
+Only in yadkin/ktapptmp/: .kotlin
+Files edu/compose/codelab/settings.gradle.kts and yadkin/ktapptmp/settings.gradle.kts differ
