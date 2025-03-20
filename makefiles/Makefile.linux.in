@@ -46,23 +46,13 @@ install:
 	mkdir -p $(PREFIX)/share/$(NAME)/images/
 	# Create the Java/JVM dir
 	mv ./share/$(JDKVER) $(PREFIX)/share/$(NAME)/
-	ln -s $(PREFIX)/share/$(NAME)/$(JDKVER)/java $(PREFIX)/bin/
-	ln -s $(PREFIX)/share/$(NAME)/$(JDKVER)/keytool $(PREFIX)/bin/
+	#ln -s $(PREFIX)/share/$(NAME)/$(JDKVER)/java $(PREFIX)/bin/
+	#ln -s $(PREFIX)/share/$(NAME)/$(JDKVER)/keytool $(PREFIX)/bin/
 	# Create the SDK home
 	mv ./share/sdk/cmdline-tools $(PREFIX)/share/$(NAME)/sdk
-	ln -s $(PREFIX)/share/$(NAME)/sdk/platform-tools/adb $(PREFIX)/bin/
-	ln -s $(PREFIX)/share/$(NAME)/sdk/emulator/emulator $(PREFIX)/bin/
-	# Copy aliases and environment variables
-	mv yadkin-init.sh $(PREFIX)/yadkin-init.sh
-	@echo "$(NAME) was installed successfully, system for PATH changes to take effect."
-	@echo "If you installed this to a non-standard location (like \$$HOME/.yadkin), be"
-	@echo "sure to add the following line to your .bashrc or .bash_profile:"
-	@echo
-	@echo "test -f \"$(PREFIX)/yadkin-init.sh\" && source \"$(PREFIX)/yadkin-init.sh\""
-	@echo
-
-test-link:
-	# Link the emulator and any other potentially needed tools 
+	#ln -s $(PREFIX)/share/$(NAME)/sdk/platform-tools/adb $(PREFIX)/bin/
+	#ln -s $(PREFIX)/share/$(NAME)/sdk/emulator/emulator $(PREFIX)/bin/
+	# Link everything we'll need
 	ln -s $(PREFIX)/share/$(NAME)/sdk/emulator/crashpad_handler $(PREFIX)/bin/
 	ln -s $(PREFIX)/share/$(NAME)/sdk/emulator/crashreport $(PREFIX)/bin/
 	ln -s $(PREFIX)/share/$(NAME)/sdk/emulator/emulator $(PREFIX)/bin/
@@ -103,6 +93,15 @@ test-link:
 	#ln -s $(PREFIX)/share/$(NAME)/sdk/platform-tools/mke2fs $(PREFIX)/bin/
 	# Leave SQLite off only because it's built into most platofrms...
 	#ln -s $(PREFIX)/share/$(NAME)/sdk/platform-tools/sqlite3 $(PREFIX)/bin/
+	# Copy aliases and environment variables
+	mv yadkin-init.sh $(PREFIX)/yadkin-init.sh
+	@echo "$(NAME) was installed successfully, system for PATH changes to take effect."
+	@echo "If you installed this to a non-standard location (like \$$HOME/.yadkin), be"
+	@echo "sure to add the following line to your .bashrc or .bash_profile:"
+	@echo
+	@echo "test -f \"$(PREFIX)/yadkin-init.sh\" && source \"$(PREFIX)/yadkin-init.sh\""
+	@echo
+
 
 # TODO: This needs further testing and is only useful if the user is globally installing Yadkin
 # configuration-install - Install config files globally
@@ -139,6 +138,7 @@ explain:
 clean:
 	-rm -rf share/
 	-rm -f yadkin-init.sh
+	cd src/ && $(MAKE) clean
 
 
 # veryclean - Remove dependencies and generated Makefile
