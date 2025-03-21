@@ -59,20 +59,17 @@
 //  TODO: This should be under share/, but it just depends on where the libs are.  Might want to put this in a config file.
 #define ANDROID_TEMPLATE_DIR "resources/required/android"
 
+// Should memory EVER become a concern, up this
+#define HASH_TABLE_INIT_LIMIT 128
+
 #define OPTIONSMSG \
-	"-c, --create <PATH>     Create an app at \\$PATH.\n" \
-	"-i, --identifier <ARG>  Specify an company identifier (e.g. com.$ID).\n" \
-	"-f, --file <ARG>        Specify a file defining the structure of the app.\n" \
-	"-n, --name <ARG>        Specify a proper name for the app.\n" \
-	"-g, --generate <ARG>    Generate an app template.\n" \
-	"-v, --verbose           Be verbose.\n"
-
-
-struct app {
-	const char *appname;
-	const char *propername;
-	const char *identifier;	
-};
+	"-c, --create <PATH>      Create an app at $PATH.\n" \
+	"-d, --domain <ARG>       Specify an domain name (default is 'com').\n" \
+	"-i, --identifier <ARG>   Specify an company identifier (e.g. com.$ID).\n" \
+	"-n, --name <ARG>         Specify a name for the app.\n" \
+	"-t, --title <ARG>        Specify a title for the app.\n" \
+	"-f, --file <ARG>         Specify a file defining the structure of the app.\n" \
+	"-v, --verbose            Be verbose.\n"
 
 
 struct file { 
@@ -91,8 +88,9 @@ struct options {
 	char *createArg;
 	int generate;
 	char *appname;
-	char *storename;
+	char *propername;
 	int verbose;
+	char *domain;
 	char *id;
 	char *file;
 	int androidBuild;
@@ -104,6 +102,7 @@ const char *strings[] = {
 	"appname"
 ,	"app_proper_name"
 , "identifier"
+, "domain"
 ,	"dependencies"
 };
 
@@ -113,12 +112,19 @@ struct options opt = {
 ,	.createArg = NULL 
 ,	.generate = 0 
 ,	.appname = "my_app" 
-,	.storename = "My App" 
+,	.propername = "My App" 
 ,	.verbose = 0 
+,	.domain = "com" //  TODO: Use config.h.in to fix this
 ,	.id = "example" //  TODO: Use config.h.in to fix this
 ,	.file = "share/example.lua"
 , .androidBuild = 1
 , .iosBuild = 1
+#if 0
+, .androidCompileSdk = 34,
+, .androidMinSdk = 24,
+, .androidTargetSdk = 34,
+, .androidJvmTarget = 11,
+#endif
 };
 
 /**
@@ -185,6 +191,7 @@ struct file android_files[] = {
 , { "$gradlew.bat", 0644 }
 //, { "settings.gradle", 0644 }
 , { "settings.gradle.kts", 0644 }
+, { "$gradle/libs.versions.toml", 0644 }
 // TODO: Find out if we actually need this or if running Gradle will create it
 , { "$gradle/wrapper/gradle-wrapper.jar", 0644 }
 , { "$gradle/wrapper/gradle-wrapper.properties", 0644 }
@@ -399,7 +406,15 @@ int main ( int argc, char *argv[] ) {
 			}	
 
 			// Set the appname from the path
+			// TODO: Check that the app name does NOT have spaces (or fix it yourself)
 			opt.appname = basename( opt.createArg );
+		}
+		else if ( !strcmp( *av, "-d" ) || !strcmp( *av, "--domain" ) ) {
+			av++;
+			if ( !( opt.domain = *av ) ) {
+				HELP( "No argument specified for --domain." );
+				return 1;	
+			}	
 		}
 		else if ( !strcmp( *av, "-i" ) || !strcmp( *av, "--identifier" ) ) {
 			av++;
@@ -422,23 +437,20 @@ int main ( int argc, char *argv[] ) {
 				return 1;	
 			}	
 		}
-		else if ( !strcmp( *av, "-s" ) || !strcmp( *av, "--store-name" ) ) {
+		else if ( !strcmp( *av, "-t" ) || !strcmp( *av, "--title" ) ) {
 			av++;
-			if ( !( opt.storename = *av ) ) {
+			if ( !( opt.propername = *av ) ) {
 				HELP( "No argument specified for --store-name." );
 				return 1;	
 			}	
 		}
+	#if 0
 		else if ( !strcmp( *av, "--android-only" ) ) {
 			opt.iosBuild = 0;
 		}
 		else if ( !strcmp( *av, "--ios-only" ) ) {
 			opt.androidBuild = 0;
 		}
-		else if ( !strcmp( *av, "-v" ) || !strcmp( *av, "--verbose" ) ) {
-			opt.verbose = 1;
-		}
-	#if 0
 		else if ( !strcmp( *av, "-g" ) || !strcmp( *av, "--generate" ) ) {
 			opt.generate = 1;
 			av++;
@@ -448,6 +460,9 @@ int main ( int argc, char *argv[] ) {
 			}	
 		}
 	#endif
+		else if ( !strcmp( *av, "-v" ) || !strcmp( *av, "--verbose" ) ) {
+			opt.verbose = 1;
+		}
 		else {
 			HELP( "Unknown/unsupported flag: %s.", *av );
 			return 1;	
@@ -554,30 +569,35 @@ int main ( int argc, char *argv[] ) {
 			return 1;
 		}
 
-    if ( !strlen( opt.storename ) ) {
+    if ( !strlen( opt.propername ) ) {
 			HELP( "No store/proper name specified..." );
 			return 1;
 		}
 
 		// Define a file just for testing...
-		if ( !( zt = lt_make( 1024 ) ) ) {
+		if ( !( zt = lt_make( HASH_TABLE_INIT_LIMIT ) ) ) {
 			HELP( "ztable creation failed: %s.", lt_strerror ( zt ) );
 			return 0;
 		}
 
-    //  Add the identifier
+    // Add the identifier
+    lt_addtextkey( zt, "domain" );
+    lt_addtextvalue( zt, opt.domain );
+    lt_finalize( zt );
+
+    // Add the identifier
     lt_addtextkey( zt, "identifier" );
     lt_addtextvalue( zt, opt.id );
     lt_finalize( zt );
 
-    //  Add app name
+    // Add app name
     lt_addtextkey( zt, "app_name" );
     lt_addtextvalue( zt, opt.appname );
     lt_finalize( zt );
 
-    //  Add the proper name
+    // Add the proper name
     lt_addtextkey( zt, "app_proper_name" );
-    lt_addtextvalue( zt, opt.storename );
+    lt_addtextvalue( zt, opt.propername );
     lt_finalize( zt );
 
     // "Lock" the table (which simply creates a hash table of all values stored)
