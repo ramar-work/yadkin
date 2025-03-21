@@ -304,19 +304,19 @@ then
 	exit 1
 elif test $OSOPT == 'l'
 then
-	echo is Linux
+	test $VERBOSE -eq 1 && echo is Linux
 	JDKBIN=$JDKBIN_LINUX
 	MAKEFILE=Makefile.linux
 	CONFIGFILE=unix.env
 elif test $OSOPT == 'd'
 then
-	echo is Mac 
+	test $VERBOSE -eq 1 && echo is Mac OS
 	JDKBIN=$JDKBIN_MAC
 	MAKEFILE=Makefile.mac
 	CONFIGFILE=macos.env
 elif test $OSOPT == 'c'
 then
-	echo is Cyg 
+	test $VERBOSE -eq 1 && echo is Cygwin 
 	# TODO: Is this not Windows?
 	JDKBIN=$JDKBIN_LINUX
 	MAKEFILE=Makefile.cygwin
