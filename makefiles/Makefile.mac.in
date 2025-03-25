@@ -38,8 +38,22 @@ utility:
 	cd src/ && $(MAKE)
 
 
+# install - Install Android dependencies and the builder utility
+install: android-install utility-install
+	@printf "Install completed."
+
+
+# utility-install - Install the builder utility, and any resources
+utility-install:
+	mkdir -p $(PREFIX)/share/$(NAME)/resources/
+	# Copy all resources for Android
+	cp -r ./resources/required/android $(PREFIX)/share/$(NAME)/resources/
+	# Copy the binary
+	cp ./bin/yadkin $(PREFIX)/bin/
+
+
 # install - Install
-install:
+android-install:
 	mkdir -p $(PREFIX)/bin/
 	mkdir -p $(PREFIX)/etc/$(NAME)/
 	mkdir -p $(PREFIX)/include/$(NAME)/

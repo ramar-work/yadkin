@@ -1,0 +1,7 @@
+/* config.h */
+
+// Define ANDROID_SHARE_PATH at build time for now
+#define ANDROID_SHARE_PATH "@@PREFIX@@/share/yadkin/resources/android"
+
+// Currently, the hash table used is VERY small.  It will probably get longer once more setting keys are added.
+#define HASH_TABLE_INIT_LIMIT 128

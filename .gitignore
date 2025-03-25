@@ -32,3 +32,5 @@ TODO
 # Source code listing 
 src.vim
 
+# config
+src/config.h

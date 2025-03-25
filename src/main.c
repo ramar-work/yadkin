@@ -42,6 +42,8 @@
 #include "zrender.h"
 #include "ztable.h"
 
+#include "config.h"
+
 #if 0
 #include "zjson.h"
 #include <sqlite3.h>
@@ -55,12 +57,6 @@
 	fprintf( stderr, "%s", "yadkin: " ) && \
 	fprintf( stderr, __VA_ARGS__ ) && \
 	fprintf( stderr, "\n" )
-
-//  TODO: This should be under share/, but it just depends on where the libs are.  Might want to put this in a config file.
-#define ANDROID_TEMPLATE_DIR "resources/required/android"
-
-// Should memory EVER become a concern, up this
-#define HASH_TABLE_INIT_LIMIT 128
 
 #define OPTIONSMSG \
 	"-c, --create <PATH>      Create an app at $PATH.\n" \
@@ -659,7 +655,7 @@ exit(0);
 		// Copy all the files to the right places for now...
 		for ( struct file *file = android_files; file->filename; ++file ) {
 
-			const char template_dir[] = ANDROID_TEMPLATE_DIR;
+			const char template_dir[] = ANDROID_SHARE_PATH;
 			const char src[ PATH_MAX ], dest[ PATH_MAX ];
 			memset( (void *)src, 0, PATH_MAX ), memset( (void *)dest, 0, PATH_MAX );
 

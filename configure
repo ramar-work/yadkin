@@ -346,5 +346,9 @@ $SED "{
 	s/@@JDKSRC@@/$JDKSRC/g;
 }" environment/${CONFIGFILE}.in > yadkin-init.sh
 
+# Lastly, generate the config.h for the builder
+$SED "{
+	s;@@PREFIX@@;$PREFIX;g;
+}" src/config.h.in > src/config.h
 
 exit 0
