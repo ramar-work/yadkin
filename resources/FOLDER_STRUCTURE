@@ -1,0 +1,49 @@
+$APPNAME/app/src/main/java
+	com.$ID.$APPNAME {
+		activities
+		fragments = fragments {
+
+		}
+	}
+
+$APPNAME/app/src/main/res
+	res {
+	 font = font {
+		any custom fonts can go here, since I have an idea now
+	 }
+	 drawable=drawable {
+		ic_launcher_background.xml
+	 }
+	 drawable-v24=drawable-v24 {
+		ic_launcher_foreground.xml
+	 }
+	 mipmap-anydpi-v26=mipmap-anydpi-v26 {
+		ic_launcher.xml
+		ic_launcher_round.xml
+	 }
+	 mipmap-hdpi=mipmap-hdpi {
+		ic_launcher.webp
+		ic_launcher_round.webp
+	 }
+	 mipmap-mdpi=mipmap-mdpi {
+		ic_launcher.webp
+		ic_launcher_round.webp
+	 }
+	 mipmap-xhdpi=mipmap-xhdpi {
+		ic_launcher.webp
+		ic_launcher_round.webp
+	 }
+	 mipmap-xxhdpi=mipmap-xxhdpi {
+		ic_launcher.webp
+		ic_launcher_round.webp
+	 }
+	 mipmap-xxxhdpi=mipmap-xxxhdpi {
+		ic_launcher.webp
+		ic_launcher_round.webp
+	 }
+	 values=values {
+		colors.xml
+		strings.xml
+		themes.xml
+	 }
+	}

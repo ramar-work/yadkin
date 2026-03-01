@@ -35,7 +35,7 @@ JDKVER=17
 JDKPATH=
 
 # Specify a version of Android
-ANDROIDVER=( 31 )
+ANDROIDVER=31
 
 # Specify a version of iOS
 IOSVER=
