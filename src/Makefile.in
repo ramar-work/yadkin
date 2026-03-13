@@ -15,9 +15,6 @@ debug: zrender.o ztable.o zwalker.o
 	@test -d ../bin/ || mkdir ../bin/
 	$(CC) $(CFLAGS) -lm $^ main.c -o ../bin/$(BIN)
 
-install:
-	cp bin/$(BIN) $(PREFIX)/bin/
-
 clean:
 	find . -type f -name "*.o" | xargs rm
 

@@ -1,0 +1,229 @@
+# yadkin - Makefile for bootstrapping Android and its dependencies
+NAME = yadkin
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+srcdir = @srcdir@
+BRANCH = @osname@
+VERSION = @PACKAGE_VERSION@
+VPATH = @srcdir@
+DISTDIR = $(NAME)-$(VERSION)
+
+# Fetching
+SRCURI = @srcuri@
+SRCMETHOD = @srcmethod@
+
+# Source
+CLITOOLS = commandlinetools-$(BRANCH).tar.gz 
+TARGETS = "build-tools;31.0.0" "cmdline-tools;latest" "platform-tools" "ndk-bundle" "system-images;android-31;default;x86_64"
+JDKBIN = OpenJDK17U-jdk_x64_$(BRANCH)_hotspot_17.0.14_7.tar.gz
+JDKVER = jdk-17.0.14+7
+
+# Certificate/build profile info 
+COMPANY = itsamazing
+ORG = com.$(COMPANY).$(NAME)
+
+# Tools
+LINK_FLAGS=-s
+LINK=/bin/ln $(LINK_FLAGS)
+WWWCLIENT_FLAGS=-O
+WWWCLIENT=wget
+SCPCLIENT=scp
+
+# main - Unpack dependencies and build the C utility
+main: checks dependencies utility
+	@printf "Build completed.  Please run 'make install' to begin installation.\n"
+
+
+# dep-over-http - Fetch Android SDK, NDK and JDK dependencies over HTTP
+dep-via-http:
+	test -f $(srcdir)/vendor/$(CLITOOLS) || \
+		wget -O "$(srcdir)/vendor/$(CLITOOLS)" "$(SRCURI)/$(CLITOOLS)"
+	test -f $(srcdir)/vendor/$(JDKBIN) || \
+		wget -O "$(srcdir)/vendor/$(JDKBIN)" "$(SRCURI)/$(JDKBIN)"
+
+
+# dep-via-ssh - Fetch Android SDK, NDK and JDK dependencies over SSH
+dep-via-ssh:
+	test -f $(srcdir)/vendor/$(CLITOOLS) || \
+		scp "$(SRCURI)/$(CLITOOLS)" $(srcdir)/vendor/
+	test -f $(srcdir)/vendor/$(JDKBIN) || \
+		scp "$(SRCURI)/$(JDKBIN)" $(srcdir)/vendor/
+
+
+# dep-via-local - Check for Android SDK, NDK and JDK dependencies locally
+dep-via-local:
+	test -f $(SRCURI)/$(CLITOOLS)
+	test -f $(SRCURI)/$(JDKBIN)
+
+
+# dependencies - Download/check for Android SDK, NDK and JDK dependencies
+dependencies: dep-via-$(SRCMETHOD)
+	test -d $(srcdir)/vendor/ || mkdir $(srcdir)/vendor/
+	-rm -rf $(srcdir)/share/
+	-mkdir -p $(srcdir)/share/sdk/cmdline-tools/latest
+	tar -xzf $(srcdir)/vendor/$(CLITOOLS) -C $(srcdir)/share/sdk/cmdline-tools/
+	tar -xzf $(srcdir)/vendor/$(JDKBIN) -C $(srcdir)/share/
+	export JAVA_HOME=$(srcdir)/share/$(JDKVER) && \
+	export ANDROID_SDK_ROOT=$(srcdir)/share/sdk && \
+		$(srcdir)/share/sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$(srcdir)/share/sdk/cmdline-tools $(TARGETS)
+
+
+# utility - Make the builder utility for default Android projects
+utility:
+	cd src/ && $(MAKE)
+
+
+# unpack - ?
+unpack:
+	printf '' > /dev/null
+
+
+# install - Install Android dependencies and the builder utility
+install: directory-install android-install utility-install install-completed
+	@printf "Install completed."
+
+
+# config-install - Install a shell config file 
+config-install:
+	install -m 0755 $(srcdir)/yadkin-init.sh $(prefix)/
+
+
+# directory-install - Create any directories that may not exist
+directory-install:
+	install -d $(exec_prefix)/bin/
+	install -d $(prefix)/etc/$(NAME)/
+	install -d $(prefix)/include/$(NAME)/
+
+
+# utility-install - Install the builder utility, and any resources
+utility-install:
+	install -d $(prefix)/share/$(NAME)/resources/
+	# TODO: Use install commands 
+	# Copy all resources for Android
+	cp -r $(srcdir)/resources/required/android $(prefix)/share/$(NAME)/resources/
+	# Copy the binary
+	install -m 0755 $(srcdir)/bin/yadkin $(prefix)/bin/
+
+
+# android-install - Install Android dependencies, SDK and tooling
+android-install:
+	install -d $(prefix)/share/$(NAME)/images/
+	# Create the Java/JVM dir
+	mv $(srcdir)/share/$(JDKVER) $(prefix)/share/$(NAME)/
+	#$(LINK) $(prefix)/share/$(NAME)/$(JDKVER)/java $(prefix)/bin/
+	#$(LINK) $(prefix)/share/$(NAME)/$(JDKVER)/keytool $(prefix)/bin/
+	# Create the SDK home
+	mv $(srcdir)/share/sdk/cmdline-tools $(prefix)/share/$(NAME)/sdk
+	#$(LINK) $(prefix)/share/$(NAME)/sdk/platform-tools/adb $(prefix)/bin/
+	#$(LINK) $(prefix)/share/$(NAME)/sdk/emulator/emulator $(prefix)/bin/
+	# Link everything we'll need
+	$(LINK) $(prefix)/share/$(NAME)/sdk/emulator/crashpad_handler $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/emulator/crashreport $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/emulator/emulator $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/emulator/emulator-check $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/emulator/mksdcard $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/emulator/netsimd $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/emulator/nimble_bridge $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/emulator/qemu-img $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/emulator/qsn $(prefix)/bin/
+	# Link just Java and the keytool for now 
+	$(LINK) $(prefix)/share/$(NAME)/$(JDKVER)/java $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/$(JDKVER)/keytool $(prefix)/bin/
+	# Link all of the latest command line tools
+	$(LINK) $(prefix)/share/$(NAME)/sdk/cmdline-tools/latest/bin/apkanalyzer $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/cmdline-tools/latest/bin/avdmanager $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/cmdline-tools/latest/bin/d8 $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/cmdline-tools/latest/bin/lint $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/cmdline-tools/latest/bin/profgen $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/cmdline-tools/latest/bin/r8 $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/cmdline-tools/latest/bin/resourceshrinker $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/cmdline-tools/latest/bin/retrace $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/cmdline-tools/latest/bin/screenshot2 $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/cmdline-tools/latest/bin/sdkmanager $(prefix)/bin/
+	# Link the NDK build tools
+	$(LINK) $(prefix)/share/$(NAME)/sdk/ndk-bundle/ndk-build $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/ndk-bundle/ndk-gdb $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/ndk-bundle/ndk-lldb $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/ndk-bundle/ndk-stack $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/ndk-bundle/ndk-which $(prefix)/bin/
+	# Finally, link the platform-tools
+	$(LINK) $(prefix)/share/$(NAME)/sdk/platform-tools/adb $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/platform-tools/etc1tool $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/platform-tools/fastboot $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/platform-tools/hprof-conv $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/platform-tools/make_f2fs $(prefix)/bin/
+	$(LINK) $(prefix)/share/$(NAME)/sdk/platform-tools/make_f2fs_casefold $(prefix)/bin/
+	# Leave this off on Linux
+	#$(LINK) $(prefix)/share/$(NAME)/sdk/platform-tools/mke2fs $(prefix)/bin/
+	# Leave SQLite off only because it's built into most platofrms...
+	#$(LINK) $(prefix)/share/$(NAME)/sdk/platform-tools/sqlite3 $(prefix)/bin/
+	# Copy aliases and environment variables
+	mv $(srcdir)/yadkin-init.sh $(prefix)/yadkin-init.sh
+
+
+# dump - Test prefill values
+dump: checks
+	@echo 'BRANCH = $(BRANCH)'
+	@echo 'CLITOOLS = $(CLITOOLS)'
+	@echo 'COMPANY = $(COMPANY)'
+	@echo 'JDKBIN = $(JDKBIN)'
+	@echo 'JDKVER = $(JDKVER)'
+	@echo 'NAME = $(NAME)'
+	@echo 'ORG = $(ORG)'
+	@echo 'SRCMETHOD = $(SRCMETHOD)'
+	@echo 'SRCURI = $(SRCURI)'
+	@echo 'TARGETS = $(TARGETS)'
+	@echo 'VERSION = $(VERSION)'
+	@echo 'exec_prefix = $(exec_prefix)'
+	@echo 'prefix = $(prefix)'
+
+
+# install-completion - Displays separate banner for completed installs
+install-completion:
+	@echo "$(NAME) was installed successfully, system for PATH changes to take effect."
+	@echo "If you installed this to a non-standard location (like \$$HOME/.yadkin), be"
+	@echo "sure to add the following line to your .bashrc or .bash_profile:"
+	@echo
+	@echo "test -f \"$(prefix)/yadkin-init.sh\" && source \"$(prefix)/yadkin-init.sh\""
+	@echo
+
+
+# uninstall - Reverse everything created by install.
+uninstall:
+	@printf '' > /dev/null
+
+
+# explain - List all the targets and what they do
+explain:
+	@sed -n '/^#/p' Makefile | sed 's/# //' | \
+		awk -F - '{ printf "%-12s %s\n", $$1, $$2 }'
+
+
+# clean - Remove dependencies
+clean:
+	-rm -rf $(srcdir)/share/
+	-rm -f $(srcdir)/yadkin-init.sh
+	cd $(srcdir)/src/ && $(MAKE) clean
+
+
+# veryclean - Remove dependencies and generated Makefile
+veryclean: clean
+	rm -f Makefile
+
+
+# docs - Create index.html
+docs:
+	markdown -S README.md > docs/index.html
+
+
+# checks - Make sure that everything is filled out.  If these fail, it's my problem.
+checks:
+	@test ! -z $(prefix)
+	@test ! -z $(exec_prefix)
+	@test ! -z $(BRANCH)
+	@test ! -z $(SRCMETHOD)
+	@test ! -z $(SRCURI)
+	@test ! -z $(VERSION)
+
+
+.PHONY: build docs
