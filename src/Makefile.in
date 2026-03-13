@@ -2,7 +2,7 @@
 CC=gcc
 CC=clang
 CFLAGS=-Wall -Werror -Wno-unused -Ivendor
-PREFIX=/usr/local
+#PREFIX=@prefix@
 BIN=yadkin
 
 main: zrender.o ztable.o zwalker.o
@@ -16,8 +16,4 @@ debug: zrender.o ztable.o zwalker.o
 	$(CC) $(CFLAGS) -lm $^ main.c -o ../bin/$(BIN)
 
 clean:
-	find . -type f -name "*.o" | xargs rm
-
-#lua:
-#	cd vendor/lua-5.4.3 && make && cp src/liblua.a ../../	
-
+	-find . -type f -name "*.o" | xargs rm

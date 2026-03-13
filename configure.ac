@@ -8,7 +8,7 @@ AC_INIT([yadkin],[0.07],[ramar@ramarcollins.com])
 AC_CANONICAL_HOST
 
 # Only the Makefile needs to be generated at the moment.
-AC_CONFIG_FILES([Makefile,yadkin-init.sh,src/Makefile])
+AC_CONFIG_FILES([Makefile yadkin-init.sh src/Makefile src/config.h])
 
 # Define the common program name
 progname=yadkin

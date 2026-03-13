@@ -1,0 +1,15 @@
+# dump - Test prefill values
+dump: checks
+	@echo 'BRANCH = $(BRANCH)'
+	@echo 'CLITOOLS = $(CLITOOLS)'
+	@echo 'COMPANY = $(COMPANY)'
+	@echo 'JDKBIN = $(JDKBIN)'
+	@echo 'JDKVER = $(JDKVER)'
+	@echo 'NAME = $(NAME)'
+	@echo 'ORG = $(ORG)'
+	@echo 'SRCMETHOD = $(SRCMETHOD)'
+	@echo 'SRCURI = $(SRCURI)'
+	@echo 'TARGETS = $(TARGETS)'
+	@echo 'VERSION = $(VERSION)'
+	@echo 'exec_prefix = $(exec_prefix)'
+	@echo 'prefix = $(prefix)'

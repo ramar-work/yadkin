@@ -201,20 +201,20 @@ explain:
 
 # clean - Remove dependencies
 clean:
+	-rm -rf $(srcdir)/include/
 	-rm -rf $(srcdir)/share/
 	-rm -f $(srcdir)/yadkin-init.sh
-	cd $(srcdir)/src/ && $(MAKE) clean
+	-cd $(srcdir)/src/ && $(MAKE) clean
 
 
 # veryclean - Remove dependencies and generated Makefile
 veryclean: clean
-	rm -f Makefile
+	-rm -f Makefile
 
 
 # docs - Create index.html
 docs:
 	markdown -S README.md > docs/index.html
-
 
 # checks - Make sure that everything is filled out.  If these fail, it's my problem.
 checks:
@@ -225,5 +225,6 @@ checks:
 	@test ! -z $(SRCURI)
 	@test ! -z $(VERSION)
 
+-include pkg.mk
 
 .PHONY: build docs
