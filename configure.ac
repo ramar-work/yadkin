@@ -20,6 +20,11 @@ osname=
 sharedir=${datarootdir}/${progname}
 srcmethod=
 srcuri=
+user=${USER}
+# TODO: This changes depending on which OS we're using
+group=
+# TODO: This should be simpler too...
+confdir=${HOME}/.yadkin
 
 # Define company info
 
@@ -32,6 +37,32 @@ company=example
 #default_organization="RWK Apps, LLC"
 #default_server_ip="127.0.0.1"
 #default_server_name="localhost"
+
+# Crude OS detection
+#if test -z $opersys
+if test 1 -eq 1
+then
+
+	case "$host_os" in 
+		linux*)
+			osname="linux"
+			test -z $group && group="users"
+		;;
+		darwin*)
+			osname="macos"
+			test -z $group && group="everyone"
+		;;
+		cygwin*|mingw*|msys*)
+			osname="windows"
+			test -z $group && group="users"
+		;;
+		*)
+			AC_MSG_ERROR(["OS $host_os not supported"])	
+		;;
+	esac
+
+	printf "Detected OS is $osname\n" > /dev/stderr
+fi
 
 
 # Simple overrides
@@ -47,6 +78,12 @@ AC_ARG_WITH([local-path], AS_HELP_STRING([--with-local-path=DIR],[Define a local
 
 AC_ARG_WITH([ssh-path], AS_HELP_STRING([--with-ssh-path=DIR],[Define a URI to an SSH server for fetching dependencies (such as Android SDK, etc)]), [srcuri=${withval}; srcmethod='ssh'])
 
+# TODO: Need to figure out how to dump $user
+AC_ARG_WITH([user], AS_HELP_STRING([--with-user=USER],[Define a user to run builds as (default: ${user}).]), [user=${withval}])
+
+# TODO: Need to figure out how to dump $group
+AC_ARG_WITH([group], AS_HELP_STRING([--with-group=GROUP],[Define a group to run builds as (default: ${group}).]), [group=${withval}])
+
 # Utilities to check for
 AC_PROG_AWK
 AC_PROG_SED
@@ -61,29 +98,6 @@ AC_CHECK_PROG([GZIP],[gzip],[yes],[no],,[/usr/bin/gzip])
 # Do a custom check for gzip
 AC_CHECK_PROG([TAR],[tar],[yes],[no],,[/usr/bin/tar])
 
-# Crude OS detection
-#if test -z $opersys
-if test 1 -eq 1
-then
-
-	case "$host_os" in 
-		linux*)
-			osname="linux"
-		;;
-		darwin*)
-			osname="macos"
-		;;
-		cygwin*|mingw*|msys*)
-			osname="windows"
-		;;
-		*)
-			AC_MSG_ERROR(["OS $host_os not supported"])	
-		;;
-	esac
-
-	printf "OS IS $osname\n" > /dev/stderr
-fi
-
 
 # Summary message
 cat << EOF
@@ -94,6 +108,9 @@ osname: $osname
 sharedir: $sharedir
 srcmethod: $srcmethod
 srcuri: $srcuri
+owner: $user
+group: $group
+confdir: $confdir
 
 EOF
 
@@ -105,5 +122,8 @@ AC_SUBST(osname)
 AC_SUBST(sharedir)
 AC_SUBST(srcmethod)
 AC_SUBST(srcuri)
+AC_SUBST(user)
+AC_SUBST(group)
+AC_SUBST(confdir)
 
 AC_OUTPUT

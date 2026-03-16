@@ -7,6 +7,9 @@ BRANCH = @osname@
 VERSION = @PACKAGE_VERSION@
 VPATH = @srcdir@
 DISTDIR = $(NAME)-$(VERSION)
+CONFDIR = @confdir@
+IUSER = @user@
+IGROUP = @group@
 
 # Fetching
 SRCURI = @srcuri@
@@ -14,7 +17,8 @@ SRCMETHOD = @srcmethod@
 
 # Source
 CLITOOLS = commandlinetools-$(BRANCH).tar.gz 
-TARGETS = "build-tools;31.0.0" "cmdline-tools;latest" "platform-tools" "ndk-bundle" "system-images;android-31;default;x86_64"
+#TARGETS = "build-tools;31.0.0" "cmdline-tools;latest" "platform-tools" "ndk-bundle" "system-images;android-31;default;x86_64" "platforms;android-31"
+TARGETS = "build-tools;31.0.0" "cmdline-tools;latest" "ndk-bundle" "platform-tools" "platforms;android-31" "system-images;android-31;default;x86_64"
 JDKBIN = OpenJDK17U-jdk_x64_$(BRANCH)_hotspot_17.0.14_7.tar.gz
 JDKVER = jdk-17.0.14+7
 
@@ -79,13 +83,21 @@ unpack:
 
 
 # install - Install Android dependencies and the builder utility
-install: directory-install android-install utility-install install-completed
-	@printf "Install completed."
+install: directory-install android-install utility-install config-install install-completed
+	@printf "Install successful!  Please don't forget to add the following to your .bashrc."
+	@printf 'test -s "$(HOME)/.yadkin/yadkin-init.sh" ]] && {\n'
+	@printf '\tsource "$(HOME)/.yadkin/yadkin-init.sh"\n'
+	@printf '\tPATH=\"$$PATH:$$HOME/.yadkin/bin\"\n'
+	@printf '}\n' 
 
 
 # config-install - Install a shell config file 
+# TODO: This should install globally, and remove itself when completed.
 config-install:
-	install -m 0755 $(srcdir)/yadkin-init.sh $(prefix)/
+	#install -m 0755 $(srcdir)/yadkin-init.sh $(prefix)/etc/
+	#test -d $(HOME)/.yadkin/ || mkdir $(HOME)/.yadkin/
+	install -o $(IUSER) -g $(IGROUP) -d $(CONFDIR)
+	install -o $(IUSER) -g $(IGROUP) -m 0755 $(srcdir)/yadkin-init.sh $(CONFDIR)
 
 
 # directory-install - Create any directories that may not exist
@@ -157,8 +169,6 @@ android-install:
 	#$(LINK) $(prefix)/share/$(NAME)/sdk/platform-tools/mke2fs $(prefix)/bin/
 	# Leave SQLite off only because it's built into most platofrms...
 	#$(LINK) $(prefix)/share/$(NAME)/sdk/platform-tools/sqlite3 $(prefix)/bin/
-	# Copy aliases and environment variables
-	mv $(srcdir)/yadkin-init.sh $(prefix)/yadkin-init.sh
 
 
 # dump - Test prefill values
