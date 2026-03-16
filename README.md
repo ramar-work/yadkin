@@ -25,11 +25,26 @@ Once that's complete, running `make` will pull down the Java Development Kit, th
 
 If further modification to the install is needed, some helpful `configure` flags you can use are as follows:
 
-Flag | Description
----- | -----------
-`--prefix=DIR` | Chooses to install Android SDK and command-line tools under the directory DIR.
-`--with-local-path=DIR` | Instead of fetching dependencies over the internet, the installer will search in directory DIR for a Java development kit and the Android command-line tools.
-`--with-user=USER` | Defines a specific user to install Yadkin's configuration directory
-`--with-group=GROUP` | Defines a specific user to install Yadkin's configuration directory
+<table>
+<thead>
+<th>Flag</th> 
+<th>Description</th>
+</thead>
+<tbody>
+<tr>
+<td>`--prefix=DIR`</td>
+<td>Chooses to install Android SDK and command-line tools under the directory DIR.</td>
+</tr>
+<td>`--with-local-path=DIR`</td>
+<td>Instead of fetching dependencies over the internet, the installer will search in directory DIR for a Java development kit and the Android command-line tools.</td>
+</tr>
+<td>`--with-user=USER`</td>
+<td>Defines a specific user to install Yadkin's configuration directory</td>
+</tr>
+<td>`--with-group=GROUP`</td>
+<td>Defines a specific user to install Yadkin's configuration directory</td>
+</tr>
+</tbody>
+</table>
 
 Additional flags can be viewed by running `./configure --help` in top-level directory of this repository.

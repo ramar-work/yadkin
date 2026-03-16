@@ -1,18 +1,58 @@
+<!doctype html>
+<html>
+<head>
+<title>Yadkin - Bootstrap your Android projects</title>
 <link rel="stylesheet" href="https://git.ramar.work/index.css">
 <link rel="stylesheet" href="./index.css">
-
+</head>
+<body>
 <h1>yadkin</h1>
 
 <p>A bootstrapping tool for Android and it's dependencies.</p>
 
-<p>Installing this will allow to start building Android apps with little issue on Linux, Mac OS or Windows.  Its goal is to allow for building an Android toolchain with as little interference as possible while stayling light and scritable.  </p>
+<p>Installing this will allow you to start building Android apps without depending on Android Studio in Linux and Mac OS.  Its goal is to allow for building an Android toolchain with as little interference as possible while stayling light and scriptable.  The tools installed here can be used as a base for cross platform frameworks like SDL or Flutter.  Lastly, it can be used for a CI/CD chain on some other server where tooling like Android Studio cannot be installed easily.</p>
 
-<p>Primary uses for this toolchain are used with something like Flutter, for instance, to setup tools like the Android debugger, emulator and more.  It can also be used as a base for other cross platform tooling, like SDL.  Lastly, it can be used for a CI/CD chain on some other server where tooling like Android Studio cannot be installed.</p>
+<h2>Use Cases</h2>
+
+<p>While this tool may not be 100% useful for those who are purely Android; developers using either Flutter or SDL (or native tools for cross-platform development) should love being able to deploy a valid Android toolkit from the command-line.</p>
 
 <h2>Dependencies</h2>
 
-<p>A Bash shell if you'll only need the Android toolkit.  A C Compiler will be needed for the Android application template builder.</p>
+<ul>
+<li>A Bash shell if you'll only need the Android toolkit.  </li>
+<li>A C Compiler will be needed for the Android application template builder.</li>
+</ul>
 
 <h2>Usage</h2>
 
-<p>Running <code>make</code> with the target of your choice as an argument will pull down the JDK and the newest version of Android's command line tools.  Configuration of paths and versions can be done from the Makefile. </p>
+<p>Running <code>configure</code> will build a Makefile suitable for your system.  You can override the default choice by specifying the <code>--with-operating-system</code> flag with the symbolic name of your operating system.  (e.g. "linux" if you want a Linux-compatible Makefile, "darwin" if you're on a Mac).</p>
+
+<p>Once that's complete, running <code>make</code> will pull down the Java Development Kit, the newest version of Android's command line tools, and the utilities needed to build Android projects from scratch.</p>
+
+<p>If further modification to the install is needed, some helpful <code>configure</code> flags you can use are as follows:</p>
+
+<table>
+<thead>
+<th>Flag</th> 
+<th>Description</th>
+</thead>
+<tbody>
+<tr>
+<td>`--prefix=DIR`</td>
+<td>Chooses to install Android SDK and command-line tools under the directory DIR.</td>
+</tr>
+<td>`--with-local-path=DIR`</td>
+<td>Instead of fetching dependencies over the internet, the installer will search in directory DIR for a Java development kit and the Android command-line tools.</td>
+</tr>
+<td>`--with-user=USER`</td>
+<td>Defines a specific user to install Yadkin's configuration directory</td>
+</tr>
+<td>`--with-group=GROUP`</td>
+<td>Defines a specific user to install Yadkin's configuration directory</td>
+</tr>
+</tbody>
+</table>
+
+<p>Additional flags can be viewed by running <code>./configure --help</code> in top-level directory of this repository.</p>
+</body>
+</html>

@@ -34,9 +34,12 @@ WWWCLIENT=wget
 SCPCLIENT=scp
 
 # main - Unpack dependencies and build the C utility
-main: checks dependencies utility
+main: checks dependencies licenses utility
 	@printf "Build completed.  Please run 'make install' to begin installation.\n"
 
+# licenses - Accept any licenses that may have been downloaded
+licenses:
+	sdkmanager --licenses
 
 # dep-over-http - Fetch Android SDK, NDK and JDK dependencies over HTTP
 dep-via-http:
@@ -45,7 +48,6 @@ dep-via-http:
 	test -f $(srcdir)/vendor/$(JDKBIN) || \
 		wget -O "$(srcdir)/vendor/$(JDKBIN)" "$(SRCURI)/$(JDKBIN)"
 
-
 # dep-via-ssh - Fetch Android SDK, NDK and JDK dependencies over SSH
 dep-via-ssh:
 	test -f $(srcdir)/vendor/$(CLITOOLS) || \
@@ -53,12 +55,10 @@ dep-via-ssh:
 	test -f $(srcdir)/vendor/$(JDKBIN) || \
 		scp "$(SRCURI)/$(JDKBIN)" $(srcdir)/vendor/
 
-
 # dep-via-local - Check for Android SDK, NDK and JDK dependencies locally
 dep-via-local:
 	test -f $(SRCURI)/$(CLITOOLS)
 	test -f $(SRCURI)/$(JDKBIN)
-
 
 # dependencies - Download/check for Android SDK, NDK and JDK dependencies
 dependencies: dep-via-$(SRCMETHOD)
@@ -71,16 +71,13 @@ dependencies: dep-via-$(SRCMETHOD)
 	export ANDROID_SDK_ROOT=$(srcdir)/share/sdk && \
 		$(srcdir)/share/sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$(srcdir)/share/sdk/cmdline-tools $(TARGETS)
 
-
 # utility - Make the builder utility for default Android projects
 utility:
 	cd src/ && $(MAKE)
 
-
 # unpack - ?
 unpack:
 	printf '' > /dev/null
-
 
 # install - Install Android dependencies and the builder utility
 install: directory-install android-install utility-install config-install install-completed
@@ -90,7 +87,6 @@ install: directory-install android-install utility-install config-install instal
 	@printf '\tPATH=\"$$PATH:$$HOME/.yadkin/bin\"\n'
 	@printf '}\n' 
 
-
 # config-install - Install a shell config file 
 # TODO: This should install globally, and remove itself when completed.
 config-install:
@@ -99,13 +95,11 @@ config-install:
 	install -o $(IUSER) -g $(IGROUP) -d $(CONFDIR)
 	install -o $(IUSER) -g $(IGROUP) -m 0755 $(srcdir)/yadkin-init.sh $(CONFDIR)
 
-
 # directory-install - Create any directories that may not exist
 directory-install:
 	install -d $(exec_prefix)/bin/
 	install -d $(prefix)/etc/$(NAME)/
 	install -d $(prefix)/include/$(NAME)/
-
 
 # utility-install - Install the builder utility, and any resources
 utility-install:
@@ -115,7 +109,6 @@ utility-install:
 	cp -r $(srcdir)/resources/required/android $(prefix)/share/$(NAME)/resources/
 	# Copy the binary
 	install -m 0755 $(srcdir)/bin/yadkin $(prefix)/bin/
-
 
 # android-install - Install Android dependencies, SDK and tooling
 android-install:
@@ -170,7 +163,6 @@ android-install:
 	# Leave SQLite off only because it's built into most platofrms...
 	#$(LINK) $(prefix)/share/$(NAME)/sdk/platform-tools/sqlite3 $(prefix)/bin/
 
-
 # dump - Test prefill values
 dump: checks
 	@echo 'BRANCH = $(BRANCH)'
@@ -187,7 +179,6 @@ dump: checks
 	@echo 'exec_prefix = $(exec_prefix)'
 	@echo 'prefix = $(prefix)'
 
-
 # install-completion - Displays separate banner for completed installs
 install-completion:
 	@echo "$(NAME) was installed successfully, system for PATH changes to take effect."
@@ -197,17 +188,14 @@ install-completion:
 	@echo "test -f \"$(prefix)/yadkin-init.sh\" && source \"$(prefix)/yadkin-init.sh\""
 	@echo
 
-
 # uninstall - Reverse everything created by install.
 uninstall:
 	@printf '' > /dev/null
-
 
 # explain - List all the targets and what they do
 explain:
 	@sed -n '/^#/p' Makefile | sed 's/# //' | \
 		awk -F - '{ printf "%-12s %s\n", $$1, $$2 }'
-
 
 # clean - Remove dependencies
 clean:
@@ -216,15 +204,23 @@ clean:
 	-rm -f $(srcdir)/yadkin-init.sh
 	-cd $(srcdir)/src/ && $(MAKE) clean
 
-
 # veryclean - Remove dependencies and generated Makefile
 veryclean: clean
 	-rm -f Makefile
 
-
 # docs - Create index.html
 docs:
-	markdown -S README.md > docs/index.html
+	printf '<!doctype html>\n' > docs/index.html
+	printf '<html>\n' >> docs/index.html
+	printf '<head>\n' >> docs/index.html
+	printf '<title>Yadkin - Bootstrap your Android projects</title>\n' >> docs/index.html
+	printf '<link rel="stylesheet" href="https://git.ramar.work/index.css">\n' >> docs/index.html
+	printf '<link rel="stylesheet" href="./index.css">\n' >> docs/index.html
+	printf '</head>\n' >> docs/index.html
+	printf '<body>\n' >> docs/index.html
+	markdown README.md >> docs/index.html 
+	printf '</body>\n' >> docs/index.html
+	printf '</html>' >> docs/index.html
 
 # checks - Make sure that everything is filled out.  If these fail, it's my problem.
 checks:
